@@ -3,16 +3,26 @@
 namespace controller;
 
 
+use view\View;
+
 class Controller
 {
 
-    private $loginModel;
+
+    private $view;
     private $registerModel;
 
-    public function __construct(\model\LoginModel $loginModel, \model\RegisterModel $registerModel)
+    public function __construct(\view\View $view)
     {
-        $this->loginModel = $loginModel;
-        $this->registerModel = $registerModel;
+        $this->view = $view;
+    }
+
+    public function viewState(){
+        if($this->view->isLoggedIn()){
+
+        }
+
+
     }
 
     public function createLoginViewModel() : \model\LoginViewModel {

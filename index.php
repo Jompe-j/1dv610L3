@@ -21,14 +21,21 @@ require_once ('model/RegisterAttempt.php');
 //MAKE SURE ERRORS ARE SHOWN... MIGHT WANT TO TURN THIS OFF ON A PUBLIC SERVER
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
-//CREATE CONTROLLERS
-$Controller = new \controller\Controller(new model\LoginModel(), new model\RegisterModel());
+
+
 //$LoginController = new \controller\LoginController(new model\LoginModel);
 
 
 //CREATE OBJECTS OF THE VIEWS
 $dateTimeView = new \view\DateTimeView();
 $layoutView = new \view\LayoutView();
+$view = new \view\View($layoutView);
+
+//CREATE CONTROLLERS
+$Controller = new \controller\Controller($view);
+
+$Controller.ViewState();
+
 
 $layoutView->render($Controller->createLoginViewModel(), $dateTimeView);
 
