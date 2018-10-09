@@ -29,16 +29,22 @@ class View {
      * @return  void BUT writes to standard output and cookies!
      */
 
+    private $layout;
+
+
     public function __construct(LayoutView $layoutView)
     {
+        $this->layout = $layoutView;
 
 
 
     }
 
-    public function render(\model\LoginViewModel $viewModel)
+    public function render($contentView, $dateTimeView): void
     {
-        if(isset($_GET[\model\LoginConstants::getToRegister()])){
+        $this->layout->render($contentView, $dateTimeView);
+    }
+        /*if(isset($_GET[\model\LoginConstants::getToRegister()])){
             return $this->generateRegisterUser(
                 $viewModel->getMessage(),
                 $viewModel->getUsername()
@@ -53,7 +59,7 @@ class View {
             $viewModel->getMessage(),
             $viewModel->getUsername());
 
-    }
+    }*/
 
 
 

@@ -5,12 +5,14 @@ namespace view;
 
 class LoginFormView
 {
+
+
     /**
      * Generate HTML code on the output buffer for the logout button
      * @param $message, String output message
      * @return  void, BUT writes to standard output!
      */
-    private function generateLoginFormHTML($message, $username) {
+    public function generateLoginFormHTML($message, $username) {
         return '
 			<form method="post"> 
 				<fieldset>
@@ -31,4 +33,7 @@ class LoginFormView
 			</form>
 		';
     }
+
+
+
 }

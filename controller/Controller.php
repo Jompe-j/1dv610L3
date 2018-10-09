@@ -10,17 +10,19 @@ class Controller
 
 
     private $view;
+    private $dateTimeView;
     private $registerModel;
 
     public function __construct(\view\View $view)
     {
         $this->view = $view;
+        $this->dateTimeView = new \view\DateTimeView();
     }
 
-    public function viewState(){
-        if($this->view->isLoggedIn()){
+    public function viewState() : void {
+        $content = new \view\LoginFormView();
+        $this->view->render($content->generateLoginFormHTML('myMessage', 'username'), $this->dateTimeView->show() );
 
-        }
 
 
     }

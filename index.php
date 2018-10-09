@@ -17,6 +17,7 @@ require_once ('model/TokenModel.php');
 require_once ('model/RegisterModel.php');
 require_once ('model/RegisterCredentialsModel.php');
 require_once ('model/RegisterAttempt.php');
+require_once ('view/LoginFormView.php');
 
 //MAKE SURE ERRORS ARE SHOWN... MIGHT WANT TO TURN THIS OFF ON A PUBLIC SERVER
 error_reporting(E_ALL);
@@ -32,12 +33,12 @@ $layoutView = new \view\LayoutView();
 $view = new \view\View($layoutView);
 
 //CREATE CONTROLLERS
-$Controller = new \controller\Controller($view);
+$controller = new \controller\Controller($view);
 
-$Controller.ViewState();
+$controller->viewState();
 
 
-$layoutView->render($Controller->createLoginViewModel(), $dateTimeView);
+//$layoutView->render($dateTimeView);
 
 
 
