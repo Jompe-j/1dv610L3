@@ -13,7 +13,12 @@ I have fully broken the functionality of the login system in order to initialize
 ### Time
 120 minutes
 ### Done
-More thinking on the problem and how to divide the different controllers. Not much code written but got a clearer idea on how to proceed  
+More thinking on the problem and how to divide the different controllers. Not much code written but got a clearer idea on how to proceed. 
+
+Got the login view back after fully broken the application.
+
+### To do next
+Refactor the login View t  
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTM0MjE2MjMzXX0=
+eyJoaXN0b3J5IjpbODk1MDkzNDQwXX0=
 -->
