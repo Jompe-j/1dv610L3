@@ -18,7 +18,9 @@ More thinking on the problem and how to divide the different controllers. Not mu
 Got the login view back after fully broken the application.
 
 ### To do next
-Refactor the login View t  
+Refactor the login view in a manner that can be used for the new use cases.
+
+Considering writing a calculator and write code to handle operator precedence.  
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbODk1MDkzNDQwXX0=
+eyJoaXN0b3J5IjpbLTIwNzU0OTY3NDBdfQ==
 -->
