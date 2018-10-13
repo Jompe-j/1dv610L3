@@ -18,55 +18,70 @@ class LoginController
     private $dateTimeView;
     private $persistentDataRegistry;
     private $loginModel;
+    private $loginForm;
+    private $credentials;
 
     public function __construct(\view\LayoutView $layoutView, \view\DateTimeView $dateTimeView)
     {
         $this->view = $layoutView; // TODO When should dependencies be injected and when should they be created within the class?
         $this->dateTimeView = $dateTimeView;
         $this->persistentDataRegistry = new LoginDbModel();
+        $this->loginForm = new \view\LoginFormView();
         $this->loginModel = new \model\LoginModel();
 
     }
 
-    public function loginAttempt(): bool
+    public function loginAttempt(): void
     {
-        $content = new \view\LoginFormView();
-        $content->setCredentials();
-        $this->loginModel->setUpCredentials($content->getUsername(), $content->getPassword(), $content->getKeepLoggedIn());
-
-
         try{
-            $this->loginModel->userCredentialsLogin();
-        } catch (\Exception $exception){
-            $content->loginExceptionHandler($exception);
+            $this->credentials = $this->loginForm->areCredentialsValid();
+        } catch (\Exception $exception) {
+            $this->setLoggedInStatus(false);
         }
 
-        if($content->getKeepLoggedIn()){
-            $content->setCookie();
+        try{
+
+            $this->loginModel->userCredentialsLogin($this->credentials);
+        } catch (\Exception $exception){
+            $this->loginForm->loginExceptionHandler($exception);
+            $this->setLoggedInStatus(false);
+            $this->credentials->setIsLoggedIn(false); // TODO Is this a reference with sideffects?
+        }
+
+        if( $this->loginForm->getKeepLoggedIn()){
+            $this->view->setCookie();
             $this->persistentDataRegistry->setTokenToDb(
-                $content->getUsername(),
-                $content->getToken(),
-                $content->getExpiration()
+                $this->credentials->getUsername(),
+                $this->view->getToken(),
+                $this->view->getExpiration()
             ); // TODO Split into two functions in dbmodel.
         }
 
-        return true;
+        $this->setLoggedInStatus(true);
+        $this->credentials->setIsLoggedIn(true); // TODO Is this a reference with sideffects?
 
     }
 
     public function notLoggedIn(): void
     {
-        $content = new \view\LoginFormView();
-        $this->view->render($content, $this->dateTimeView );
+        $this->view->render($this->loginForm, $this->dateTimeView );
     }
 
-    public function isSessionSet(): bool {
+    public function isLoggedIn(): bool {
+        // TODO should also handle cookies
 
         return $this->loginModel->isSessionSet();
     }
 
-    public function logOut() {
-        $this->loginModel->logOut();
+    public function logOut(): void {
+        $this->view->logOut(); // TODO should layoutview handle log out?
+        $this->loginModel->clearSession();
+
+    }
+
+    public function setLoggedInStatus($status): void {
+        // $status = $this->loginController->loginAttempt();
+        $this->view->setIsLoggedInStatus($status);
 
     }
 

@@ -4,11 +4,12 @@ namespace model;
 
 class LoginCredentialsModel
 {
-    private $username = '';
-    private $password = '';
+    private $username;
+    private $password;
     private $wantCookies = false;
+    private $isLoggedIn = false;
 
-    public function __construct($username, $password, $wantCookies)
+    public function __construct(UsernameModel $username, PasswordModel $password, bool $wantCookies)
     {
         $this->setUsername($username);
         $this->setPassword($password);
@@ -16,28 +17,33 @@ class LoginCredentialsModel
     }
 
     public function getUsername(){
-        return $this->username;
+        return $this->username->getUsername();
     }
 
     public function getPassword(){
-        return $this->password;
+        return $this->password->getPassword();
     }
 
-    public function getWantCookies() {
+    public function getWantCookies(): bool {
         return $this->wantCookies;
     }
 
-    private function setUsername($username){
+    private function setUsername(UsernameModel $username): void {
         $this->username = $username;
     }
 
-    private function setPassword($password){
+    private function setPassword(PasswordModel $password): void {
         $this->password = $password;
-
     }
-    private function setWantCookies($wantCookies) {
 
-            $this->wantCookies = $wantCookies;
+    private function setWantCookies(bool $wantCookies): void {
+        $this->wantCookies = $wantCookies;
+    }
+
+    public function getIsLoggedIn(): bool { return $this->isLoggedIn;    }
+
+    public function setIsLoggedIn(bool $isLoggedIn): void {
+        $this->isLoggedIn = $isLoggedIn;
     }
 
 

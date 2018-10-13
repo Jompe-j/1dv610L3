@@ -14,22 +14,18 @@ class LoginModel
 
     }
 
-    public function setUpCredentials(string $username, string $password, bool $keepMeLoggedIn): void {
-        $this->credentials = new LoginCredentialsModel($username, $password, $keepMeLoggedIn);
-    }
-    public function userCredentialsLogin(): void {
+    public function userCredentialsLogin(LoginCredentialsModel $credentials): void {
         $registry = new LoginDbModel();
             $registry->connectToDb();
-            $registry->userExist($this->credentials->getUsername());
-            $registry->matchCredentials($this->credentials->getUsername(), $this->credentials->getPassword());
-            echo 'Set session';
-            $this->setSession();
+            $registry->userExist($credentials->getUsername());
+            $registry->matchCredentials($credentials->getUsername(), $credentials->getPassword());
+            $this->setSession($credentials->getUsername());
             var_dump(isset($_SESSION['username']));
 
     }
 
-    public function setSession(): void {
-        $_SESSION['username'] = $this->credentials->getUsername();
+    public function setSession($username): void {
+        $_SESSION['username'] = $username;
     }
 
     public function isSessionSet(): bool {
@@ -38,7 +34,7 @@ class LoginModel
         }
         return false;
     }
-    public function logOut(): void {
+    public function clearSession(): void {
         session_unset();
         session_destroy();
     }

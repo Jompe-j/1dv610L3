@@ -2,16 +2,14 @@
 
 namespace view;
 
-use http\Exception\InvalidArgumentException;
-
 class LayoutView {
 
     private $loginConstants;
     private $message = '';
-    private $username = '';
     private $content;
-    private $password;
     private $isLoggedIn = false;
+    private $cookieToken;
+    private $cookieExpiration;
 
     public function __construct() {
         $this->loginConstants = new \model\LoginConstants();
@@ -49,6 +47,9 @@ class LayoutView {
 
   public function setIsLoggedInStatus(bool $status): void {
         $this->isLoggedIn = $status;
+        if($this->isLoggedIn){
+            $this->message = 'Welcome';
+        }
   }
 
     private function renderRegisterLink($isRegistering, $isLoggedIn): string
@@ -100,6 +101,22 @@ class LayoutView {
         setcookie($this->loginConstants::getCookieName(), null, -1);
         setcookie($this->loginConstants::getCookiePassword(), null, -1);
         $this->setIsLoggedInStatus(false);
+    }
+
+    public function setCookie() {
+        $token = new \model\TokenModel();
+        $this->cookieToken = $token->getToken();
+        $this->cookieExpiration = time() + 86400;
+        setcookie($this->constants::getCookieName(), $this->getUsername(), $this->cookieExpiration);
+        setcookie($this->constants::getCookiePassword(), $this->cookieToken, $this->cookieExpiration);
+    }
+
+    public function getToken() {
+        return $this->cookieToken;
+    }
+
+    public function getExpiration() {
+        return $this->cookieExpiration;
     }
 
 

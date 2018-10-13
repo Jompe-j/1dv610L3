@@ -3,17 +3,20 @@
 namespace view;
 
 
+use http\Exception;
 use model\LoginConstants;
+use model\LoginCredentialsModel;
+use model\PasswordModel;
+use model\UsernameModel;
 
 class LoginFormView implements IContentView
 {
     private $constants;
+    private $loginCredentials;
     private $message = '';
-    private $password = '';
-    private $username = '';
+    private $password;
+    private $username;
     private $keepLoggedIn = false;
-    private $cookieToken;
-    private $cookieExpiration;
 
     public function __construct() {
         $this->constants = new LoginConstants(); //TODO How should String dependence be handled?
@@ -51,12 +54,30 @@ class LoginFormView implements IContentView
 		';
     }
 
+    public function areCredentialsValid(): LoginCredentialsModel {
+        try {
+            $this->username = new UsernameModel($_POST[$this->constants::getName()]);
+        } catch (\Exception $exception){
+            $this->message = 'Username is missing';
+        }
 
+        try {
+            $this->password = new PasswordModel($_POST[$this->constants::getPassword()]);
+        } catch (\Exception $exception){
+            $this->message = 'Password is missing';
+        }
 
-    public function setCredentials(): void {
-        $this->setUsername();
-        $this->setPassword();
         $this->setKeepLoggedIn();
+
+         try {
+            $credentials = new LoginCredentialsModel($this->username, $this->password, $this->keepLoggedIn);
+         } catch (\Exception $exception){
+             throw new \InvalidArgumentException('Could not create LoginCredentials');
+         }
+
+         return $credentials;
+
+
     }
 
     public function setUsername(): void {
@@ -95,37 +116,6 @@ class LoginFormView implements IContentView
         }
     }
 
-    public function setCookie() {
-        $token = new \model\TokenModel();
-        $this->cookieToken = $token->getToken();
-        $this->cookieExpiration = time() + 86400;
-        setcookie($this->constants::getCookieName(), $this->getUsername(), $this->cookieExpiration);
-        setcookie($this->constants::getCookiePassword(), $this->cookieToken, $this->cookieExpiration);
-    }
-
-    public function getToken() {
-        return $this->cookieToken;
-    }
-
-    public function getExpiration() {
-        return $this->cookieExpiration;
-    }
-
-    private function validUsername(): bool
-    {
-        if(!empty($_POST[$this->constants::getName()])){
-            return true;
-        }
-        throw new \InvalidArgumentException('Username is missing');
-    }
-
-    private function validPassword() : bool{
-        if(!empty($_POST[$this->constants::getPassword()])){
-            return true;
-        }
-        throw new \InvalidArgumentException('Password is missing');
-    }
-
     private function setKeepLoggedIn(): void {
         if (isset($_POST[$this->constants::getKeep()])){
             $this->keepLoggedIn = true;
@@ -133,4 +123,5 @@ class LoginFormView implements IContentView
             $this->keepLoggedIn = false;
         }
     }
+
 }

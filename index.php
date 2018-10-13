@@ -21,6 +21,8 @@ require_once ('model/RegisterAttempt.php');
 require_once ('view/LoginFormView.php');
 require_once ('controller/LoginController.php');
 require_once ('view/CalculatorView.php');
+require_once ('model/UsernameModel.php');
+require_once ('model/PasswordModel.php');
 
 
 //MAKE SURE ERRORS ARE SHOWN... MIGHT WANT TO TURN THIS OFF ON A PUBLIC SERVER
@@ -38,8 +40,12 @@ $layoutView = new \view\LayoutView();
 
 //CREATE CONTROLLERS
 $controller = new \controller\Controller($layoutView);
+try{
+    $controller->checkViewState();
+} catch (\Exception $exception){
+    echo $exception;
+}
 
-$controller->checkViewState();
 
 
 //$layoutView->render($dateTimeView);

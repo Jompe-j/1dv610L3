@@ -22,30 +22,30 @@ class Controller
 
     public function checkViewState() : void {
         $this->loginController = new LoginController($this->view, $this->dateTimeView);
+
         if($this->view->isLoggingOut()){
             $this->loginController->logOut();
-
-            $this->view->logOut();
         }
 
-
-        if($this->loginController->isSessionSet()){
-            $this->view->setIsLoggedInStatus($this->loginController->isSessionSet());
-            $this->renderContent();
-
-            return;
-
-        }
-
-        if ($this->view->userTryToLogin()){
-            $this->view->setIsLoggedInStatus($this->loginController->loginAttempt());
+        if($this->view->userTryToLogin() && $this->loginController->loginAttempt()) {
             $this->renderContent();
             return;
         }
+
+        if($this->loginController->isLoggedIn()){
+            $this->renderContent();
+            return;
+        }
+
 
             $this->loginController->notLoggedIn(); // TODO SHould not be neccessary when other functionality is in place.
 
     }
+
+    private function renderContent(): void {
+        $this->view->render(new CalculatorView(), $this->dateTimeView);
+    }
+
 
 
 
@@ -158,9 +158,7 @@ class Controller
         return false;
     }
 
-    private function renderContent() {
-        $this->view->render(new CalculatorView(), $this->dateTimeView);
-    }
+
 
 
 }
