@@ -2,6 +2,7 @@
 session_start();
 
 //INCLUDE THE FILES NEEDED...
+require_once ('view/IContentView.php');
 require_once('view/View.php');
 require_once('view/DateTimeView.php');
 require_once('view/LayoutView.php');
@@ -18,6 +19,9 @@ require_once ('model/RegisterModel.php');
 require_once ('model/RegisterCredentialsModel.php');
 require_once ('model/RegisterAttempt.php');
 require_once ('view/LoginFormView.php');
+require_once ('controller/LoginController.php');
+require_once ('view/CalculatorView.php');
+
 
 //MAKE SURE ERRORS ARE SHOWN... MIGHT WANT TO TURN THIS OFF ON A PUBLIC SERVER
 error_reporting(E_ALL);
@@ -30,12 +34,12 @@ ini_set('display_errors', 'On');
 //CREATE OBJECTS OF THE VIEWS
 $dateTimeView = new \view\DateTimeView();
 $layoutView = new \view\LayoutView();
-$view = new \view\View($layoutView);
+// $view = new \view\View($layoutView);
 
 //CREATE CONTROLLERS
-$controller = new \controller\Controller($view);
+$controller = new \controller\Controller($layoutView);
 
-$controller->viewState();
+$controller->checkViewState();
 
 
 //$layoutView->render($dateTimeView);

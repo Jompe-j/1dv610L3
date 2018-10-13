@@ -5,8 +5,9 @@ namespace model;
 class LoginDbModel
 {
     private $dbSetting;
+    private $connection;
 
-    private function connectToDb(): ?\PDO
+    public function connectToDb()
     {
         $this->dbSetting = new \settings\DbSettings();
         $host = $this->dbSetting->getHost();
@@ -22,19 +23,19 @@ class LoginDbModel
             \PDO::ATTR_EMULATE_PREPARES   => false,
             ];
         try {
-           return new \PDO($dsn, $username, $password, $options);
+           $this->connection = new \PDO($dsn, $username, $password, $options);
 
         } catch (\PDOException $exception) {
             throw new \PDOException($exception->getMessage(), (int)$exception->getCode());
 
         }
+
+
     }
 
-    public function providedCredentialsMatchDatabase($username, $passwordFromUser): ?bool
+    public function matchCredentials($username, $passwordFromUser): ?bool
     {
-
-        $pdo = $this->connectToDb();
-        $preparedStatement = $pdo->prepare('SELECT password FROM userpass WHERE name = ?');
+        $preparedStatement = $this->connection->prepare('SELECT password FROM userpass WHERE name = ?');
         $preparedStatement->execute([$username]);
         $foundPassword = $preparedStatement->fetch();
 
@@ -45,16 +46,15 @@ class LoginDbModel
          return $this->comparePassword($passwordFromUser, $foundPassword["password"]);
     }
 
-    public function userExist($username){
-        $pdo = $this->connectToDb();
-        $preparedStatement = $pdo->prepare('SELECT name FROM userpass WHERE name = ?');
+    public function userExist($username): bool {
+        $preparedStatement = $this->connection->prepare('SELECT name FROM userpass WHERE name = ?');
         $preparedStatement->execute([$username]);
 
         $existingUser = $preparedStatement->fetch();
-        if(!$existingUser){
-            return false;
+        if($existingUser){
+            return true;
         }
-        return true;
+        throw new \InvalidArgumentException("User Does not exist");
 
     }
 
@@ -62,14 +62,14 @@ class LoginDbModel
     {
         $arePasswordsMatching = password_verify($passwordFromUser, $foundPassword);
         if(!$arePasswordsMatching){
-            return false;
+            throw new \InvalidArgumentException('comparePassword() fail');
         }
 
         if ($arePasswordsMatching){
             return true;
         }
 
-        return false;
+        throw new \InvalidArgumentException('comparePassword() fail');
     }
 
     public function visitorCookieIsValid($username, $cookieToken): bool
@@ -87,14 +87,13 @@ class LoginDbModel
         return false;
     }
 
-    public function setTokenToDb ($username, $expiration): void
+    public function setTokenToDb ($username, $token, $expiration): void
     {
-            $token = new \model\TokenModel();
-            $pdo = $this->connectToDb();
-            $updateToken = $pdo->prepare('UPDATE userpass SET token = ? WHERE userpass . name = ?');
-            $updateToken->execute([$token->getToken(), $username]);
 
-            $updateExpiration = $pdo->prepare('UPDATE userpass SET expiration = ? WHERE userpass . name = ?');
+            $updateToken = $this->connection->prepare('UPDATE userpass SET token = ? WHERE userpass . name = ?');
+            $updateToken->execute([$token, $username]);
+
+            $updateExpiration = $this->connection->prepare('UPDATE userpass SET expiration = ? WHERE userpass . name = ?');
             $updateExpiration->execute([$expiration, $username]);
 
     }
@@ -115,6 +114,7 @@ class LoginDbModel
         $preparedStatement = $pdo->prepare('INSERT INTO userpass (id, name, password, token, expiration) VALUES (NULL, ?, ?, NULL, NULL)');
         $preparedStatement->execute([$username, $password_hash]);
     }
+
 
 
 }

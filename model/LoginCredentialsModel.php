@@ -4,8 +4,8 @@ namespace model;
 
 class LoginCredentialsModel
 {
-    private $username = "";
-    private $password = "";
+    private $username = '';
+    private $password = '';
     private $wantCookies = false;
 
     public function __construct($username, $password, $wantCookies)

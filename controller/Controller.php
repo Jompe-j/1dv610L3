@@ -3,30 +3,55 @@
 namespace controller;
 
 
+use view\CalculatorView;
 use view\View;
 
 class Controller
 {
-
-
     private $view;
     private $dateTimeView;
     private $registerModel;
 
-    public function __construct(\view\View $view)
+    private $loginController;
+
+    public function __construct(\view\LayoutView $view)
     {
         $this->view = $view;
         $this->dateTimeView = new \view\DateTimeView();
     }
 
-    public function viewState() : void {
-        $content = new \view\LoginFormView();
-        $this->view->render($content->generateLoginFormHTML('myMessage', 'username'), $this->dateTimeView->show() );
+    public function checkViewState() : void {
+        $this->loginController = new LoginController($this->view, $this->dateTimeView);
+        if($this->view->isLoggingOut()){
+            $this->loginController->logOut();
+
+            $this->view->logOut();
+        }
 
 
+        if($this->loginController->isSessionSet()){
+            $this->view->setIsLoggedInStatus($this->loginController->isSessionSet());
+            $this->renderContent();
+
+            return;
+
+        }
+
+        if ($this->view->userTryToLogin()){
+            $this->view->setIsLoggedInStatus($this->loginController->loginAttempt());
+            $this->renderContent();
+            return;
+        }
+
+            $this->loginController->notLoggedIn(); // TODO SHould not be neccessary when other functionality is in place.
 
     }
 
+
+
+
+
+    // Old Code
     public function createLoginViewModel() : \model\LoginViewModel {
 
         if (isset($_POST[\model\LoginConstants::getLogout()]) && $this->loginModel->isLoggedIn()) {
@@ -132,4 +157,10 @@ class Controller
         }
         return false;
     }
+
+    private function renderContent() {
+        $this->view->render(new CalculatorView(), $this->dateTimeView);
+    }
+
+
 }

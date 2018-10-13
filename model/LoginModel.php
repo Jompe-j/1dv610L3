@@ -4,9 +4,46 @@
 namespace model;
 
 
+use http\Exception;
+
 class LoginModel
 {
     private $credentials;
+
+    public function __construct() {
+
+    }
+
+    public function setUpCredentials(string $username, string $password, bool $keepMeLoggedIn): void {
+        $this->credentials = new LoginCredentialsModel($username, $password, $keepMeLoggedIn);
+    }
+    public function userCredentialsLogin(): void {
+        $registry = new LoginDbModel();
+            $registry->connectToDb();
+            $registry->userExist($this->credentials->getUsername());
+            $registry->matchCredentials($this->credentials->getUsername(), $this->credentials->getPassword());
+            echo 'Set session';
+            $this->setSession();
+            var_dump(isset($_SESSION['username']));
+
+    }
+
+    public function setSession(): void {
+        $_SESSION['username'] = $this->credentials->getUsername();
+    }
+
+    public function isSessionSet(): bool {
+        if(isset($_SESSION['username'])){
+            return true;
+        }
+        return false;
+    }
+    public function logOut(): void {
+        session_unset();
+        session_destroy();
+    }
+
+
 
     public function cookieAttemptLogin(\model\LoginCredentialsModel $cookieCredentials) : LoginAttempt {
         if($this->isCookieValid($cookieCredentials->getUsername(), $cookieCredentials->getPassword())){
@@ -15,6 +52,9 @@ class LoginModel
         }
         return new LoginAttempt(false, 'Wrong information in cookies');
     }
+
+
+
 
     public function formAttemptLogin(\model\LoginCredentialsModel $credentialsModel) : LoginAttempt {
         $this->credentials = $credentialsModel;
@@ -30,7 +70,7 @@ class LoginModel
         $attemptSuccess = $this->matchCredentials();
 
         if ($attemptSuccess){
-            $_SESSION['username'] = $this->credentials->getUsername();
+                $_SESSION['username'] = $this->credentials->getUsername();
             if ($this->credentials->getWantCookies()) {
                 $this->setCookies();
 
@@ -42,22 +82,14 @@ class LoginModel
         return new LoginAttempt(false, 'Wrong name or password');
     }
 
-
-
-
     public function isLoggedIn(): bool {
         return isset($_SESSION['username']);
     }
 
-    public function logOut(): void {
-        setcookie(\model\LoginConstants::getCookieName(), null, -1);
-        setcookie(\model\LoginConstants::getCookiePassword(), null, -1);
-        session_unset();
-        session_destroy();
-    }
+
 
     private function matchCredentials(): bool {
-        $pdo = new \model\LoginDbModel();
+        $pdo = new LoginDbModel();
         $matchingCredentials = $pdo->providedCredentialsMatchDatabase($this->credentials->getUsername(), $this->credentials->getPassword());
         if (!$matchingCredentials) {
             return false;
@@ -70,7 +102,7 @@ class LoginModel
         return false;
     }
 
-    private function setCookies(){
+    private function setCookies(): void {
         $username = $this->credentials->getUsername();
         $expiration = time() + 86400;
         $this->setTokenToDb($username, $expiration);
@@ -78,20 +110,21 @@ class LoginModel
         setcookie(\model\LoginConstants::getCookiePassword(), $this->getToken($username), $expiration);
     }
 
-    private function setTokenToDb($username, $expiration)  {
-        $pdo = new \model\LoginDbModel();
+    private function setTokenToDb($username, $expiration): void {
+        $pdo = new LoginDbModel();
         $pdo->setTokenToDb($username, $expiration);
     }
 
     private function getToken($username) : string {
-        $pdo = new \model\LoginDbModel();
+        $pdo = new LoginDbModel();
         return $pdo->getToken($username);
     }
 
-    private function isCookieValid($username, $cookieToken)
-    {
-        $pdo = new \model\LoginDbModel();
+    private function isCookieValid($username, $cookieToken): bool {
+        $pdo = new LoginDbModel();
         return $pdo->visitorCookieIsValid($username, $cookieToken);
     }
+
+
 
 }
