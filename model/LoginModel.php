@@ -16,12 +16,21 @@ class LoginModel
 
     public function userCredentialsLogin(LoginCredentialsModel $credentials): void {
         $registry = new LoginDbModel();
-            $registry->connectToDb();
-            $registry->userExist($credentials->getUsername());
-            $registry->matchCredentials($credentials->getUsername(), $credentials->getPassword());
-            $this->setSession($credentials->getUsername());
-            var_dump(isset($_SESSION['username']));
+        $registry->connectToDb();
+        $registry->userExist($credentials->getUsername());
+        $registry->matchCredentials($credentials->getUsername(), $credentials->getPassword());
+        $this->setSession($credentials->getUsername());
 
+    }
+
+    public function setCookieToRegistry(CookieSettingsModel $cookieSettings): void {
+        $registry = new LoginDbModel();
+        $registry->connectToDb();
+        $registry->setTokenToDb(
+            $cookieSettings->getUsername(),
+            $cookieSettings->getToken(),
+            $cookieSettings->getExpiration()
+        );
     }
 
     public function setSession($username): void {

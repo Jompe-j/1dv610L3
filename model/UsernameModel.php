@@ -16,20 +16,20 @@ class UsernameModel {
 
     private $username = '';
 
-    public function __construct(string $username) {
-        $this->validateUsername($username);
+    public function __construct() {
+
     }
 
     public function getUsername(): string {
         return $this->username;
     }
 
-    private function validateUsername($username): void {
+    public function validateUsername($username): void {
         if($username !== ''){
             $this->username = $username;
             return;
         }
-        throw new \InvalidArgumentException('Invalid username');
+        throw new \InvalidArgumentException('Invalid username', 1);
     }
 
 

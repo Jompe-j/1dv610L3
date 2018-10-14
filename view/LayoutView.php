@@ -2,6 +2,8 @@
 
 namespace view;
 
+use model\CookieSettingsModel;
+
 class LayoutView {
 
     private $loginConstants;
@@ -103,13 +105,7 @@ class LayoutView {
         $this->setIsLoggedInStatus(false);
     }
 
-    public function setCookie() {
-        $token = new \model\TokenModel();
-        $this->cookieToken = $token->getToken();
-        $this->cookieExpiration = time() + 86400;
-        setcookie($this->constants::getCookieName(), $this->getUsername(), $this->cookieExpiration);
-        setcookie($this->constants::getCookiePassword(), $this->cookieToken, $this->cookieExpiration);
-    }
+
 
     public function getToken() {
         return $this->cookieToken;

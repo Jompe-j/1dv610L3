@@ -10,6 +10,7 @@ namespace controller;
 
 
 
+use model\LoginCredentialsModel;
 use model\LoginDbModel;
 
 class LoginController
@@ -31,35 +32,32 @@ class LoginController
 
     }
 
-    public function loginAttempt(): void
-    {
-        try{
-            $this->credentials = $this->loginForm->areCredentialsValid();
+    public function loginAttempt():bool {
+        try {
+            $this->loginForm->areCredentialsValid();
+            $this->credentials = $this->loginForm->getCredentials();
         } catch (\Exception $exception) {
-            $this->setLoggedInStatus(false);
+            $this->view->setIsLoggedInStatus(false);
+            return false;
         }
 
         try{
-
             $this->loginModel->userCredentialsLogin($this->credentials);
         } catch (\Exception $exception){
             $this->loginForm->loginExceptionHandler($exception);
-            $this->setLoggedInStatus(false);
-            $this->credentials->setIsLoggedIn(false); // TODO Is this a reference with sideffects?
+            $this->view->setIsLoggedInStatus(false);
+            return false;
         }
 
         if( $this->loginForm->getKeepLoggedIn()){
-            $this->view->setCookie();
-            $this->persistentDataRegistry->setTokenToDb(
-                $this->credentials->getUsername(),
-                $this->view->getToken(),
-                $this->view->getExpiration()
-            ); // TODO Split into two functions in dbmodel.
+            $this->loginForm->setCookie();
+            $cookieSettings = $this->loginForm->getCookieSettings();
+            $this->loginModel->setCookieToRegistry($cookieSettings); // TODO Split into two functions in dbmodel.
         }
 
         $this->setLoggedInStatus(true);
         $this->credentials->setIsLoggedIn(true); // TODO Is this a reference with sideffects?
-
+        return true;
     }
 
     public function notLoggedIn(): void

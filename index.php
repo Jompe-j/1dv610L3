@@ -23,6 +23,7 @@ require_once ('controller/LoginController.php');
 require_once ('view/CalculatorView.php');
 require_once ('model/UsernameModel.php');
 require_once ('model/PasswordModel.php');
+require_once ('model/CookieSettingsModel.php');
 
 
 //MAKE SURE ERRORS ARE SHOWN... MIGHT WANT TO TURN THIS OFF ON A PUBLIC SERVER

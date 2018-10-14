@@ -54,7 +54,7 @@ class LoginDbModel
         if($existingUser){
             return true;
         }
-        throw new \InvalidArgumentException("User Does not exist");
+        throw new \InvalidArgumentException("User Does not exist", 3);
 
     }
 
@@ -62,14 +62,14 @@ class LoginDbModel
     {
         $arePasswordsMatching = password_verify($passwordFromUser, $foundPassword);
         if(!$arePasswordsMatching){
-            throw new \InvalidArgumentException('comparePassword() fail');
+            throw new \InvalidArgumentException('comparePassword() fail', 3);
         }
 
         if ($arePasswordsMatching){
             return true;
         }
 
-        throw new \InvalidArgumentException('comparePassword() fail');
+        throw new \InvalidArgumentException('comparePassword() fail', 3);// TODO how to handle errorcodes?
     }
 
     public function visitorCookieIsValid($username, $cookieToken): bool

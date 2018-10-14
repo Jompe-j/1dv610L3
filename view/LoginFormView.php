@@ -4,6 +4,7 @@ namespace view;
 
 
 use http\Exception;
+use model\CookieSettingsModel;
 use model\LoginConstants;
 use model\LoginCredentialsModel;
 use model\PasswordModel;
@@ -17,13 +18,16 @@ class LoginFormView implements IContentView
     private $password;
     private $username;
     private $keepLoggedIn = false;
+    private $cookieSettings;
 
     public function __construct() {
         $this->constants = new LoginConstants(); //TODO How should String dependence be handled?
+        $this->username = new UsernameModel();
+        $this->password = new PasswordModel();
     }
 
     public function contentToString() : string {
-        return $this->generateLoginFormHTML($this->message, $this->username);
+        return $this->generateLoginFormHTML($this->message, $this->username->getUsername());
     }
 
     /**
@@ -54,64 +58,50 @@ class LoginFormView implements IContentView
 		';
     }
 
-    public function areCredentialsValid(): LoginCredentialsModel {
+    public function areCredentialsValid(): void {
         try {
-            $this->username = new UsernameModel($_POST[$this->constants::getName()]);
+            $this->username->validateUsername($_POST[$this->constants::getName()]);
+            $this->password->validatePassword($_POST[$this->constants::getPassword()]);
         } catch (\Exception $exception){
+            $this->setMessage($exception);
+            throw new \InvalidArgumentException('InvalidCredentials', 100, $exception);
+        }
+    }
+
+    public function getCredentials(): LoginCredentialsModel {
+        $this->loginCredentials =  new LoginCredentialsModel($this->getUsername(), $this->getPassword(), $this->getKeepLoggedIn());
+        return $this->loginCredentials;
+    }
+
+    public function setMessage(\Exception $exception): void {
+        if($exception->getCode() === 1){
             $this->message = 'Username is missing';
         }
 
-        try {
-            $this->password = new PasswordModel($_POST[$this->constants::getPassword()]);
-        } catch (\Exception $exception){
+        if($exception->getCode() === 2){
             $this->message = 'Password is missing';
         }
-
-        $this->setKeepLoggedIn();
-
-         try {
-            $credentials = new LoginCredentialsModel($this->username, $this->password, $this->keepLoggedIn);
-         } catch (\Exception $exception){
-             throw new \InvalidArgumentException('Could not create LoginCredentials');
-         }
-
-         return $credentials;
-
-
     }
 
-    public function setUsername(): void {
-        try {
-            $this->validUsername();
-        } catch (\Exception $exception){
-            $this->message  = $exception->getMessage();
-        }
-         $this->username = $_POST[$this->constants::getName()];
-    }
 
-    public function setPassword(): void {
-        try{
-            $this->validPassword();
-        } catch (\Exception $exception){
-            $this->message = $exception->getMessage();
-        }
-        $this->password = $_POST[$this->constants::getPassword()];
-    }
-
-    public function getUsername(): string {
+    private function getUsername():UsernameModel  {
         return $this->username;
     }
 
-    public function getPassword() : string {
+    private function getPassword() : PasswordModel  {
         return $this->password;
     }
 
     public function getKeepLoggedIn(): bool {
-        return $this->keepLoggedIn;
+        if (isset($_POST[$this->constants::getKeep()])){
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public function loginExceptionHandler(\Exception $exception): void {
-        if($exception->getCode() === 0){
+        if($exception->getCode() === 3){
            $this->message = 'Wrong name or password';
         }
     }
@@ -122,6 +112,19 @@ class LoginFormView implements IContentView
         } else {
             $this->keepLoggedIn = false;
         }
+    }
+
+    public function setCookie(): void {
+        $tokenModel = new \model\TokenModel();
+        $cookieExpiration = time() + 86400;
+        $this->cookieSettings = new CookieSettingsModel($this->loginCredentials->getUsername(), $tokenModel->getToken(), $cookieExpiration);
+
+        setcookie($this->constants::getCookieName(), $this->cookieSettings->getUsername(), $this->cookieSettings->getExpiration());
+        setcookie($this->constants::getCookiePassword(), $this->cookieSettings->getToken(), $this->cookieSettings->getExpiration());
+    }
+
+    public function getCookieSettings() : CookieSettingsModel{
+        return $this->cookieSettings;
     }
 
 }

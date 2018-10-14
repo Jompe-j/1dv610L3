@@ -17,18 +17,18 @@ class PasswordModel {
      */
 
     private $password = '';
-    public function __construct($password) {
-        $this->validatePassword($password);
+    public function __construct() {
     }
 
     public function getPassword(): string {
         return $this->password;
     }
 
-    private function validatePassword($password): void {
-        if(!empty($password)){
+    public function validatePassword($password): void {
+            if($password !== ''){
             $this->password = $password;
+            return;
         }
-        throw new \InvalidArgumentException('No Password');
+        throw new \InvalidArgumentException('Invalid password', 2);
     }
 }
