@@ -1,11 +1,8 @@
 <?php
 
 namespace controller;
-
-
 use view\CalculatorView;
 use view\View;
-
 class Controller
 {
     private $view;
@@ -27,16 +24,25 @@ class Controller
             $this->loginController->logOut();
         }
 
-        if($this->view->userTryToLogin() && $this->loginController->loginAttempt()) {
+        if($this->view->userTryToLogin() && $this->loginController->loginAttemptWithCredentials()) {
+            $this->view->setMessageCode(11);
+            if ($this->loginController->cookieWasSet()){
+                $this->view->setMessageCode(12);
+            }
+            $this->renderContent(); // Todo NOT ONLY RENDER BUT ALSO SET logged in to true.
+            return;
+        }
+
+        if($this->loginController->loginWithSession()){
             $this->renderContent();
             return;
         }
 
-        if($this->loginController->isLoggedIn()){
+        if($this->loginController->loginWithCookies()){
+            $this->view->setMessageCode(13);
             $this->renderContent();
             return;
         }
-
 
             $this->loginController->notLoggedIn(); // TODO SHould not be neccessary when other functionality is in place.
 

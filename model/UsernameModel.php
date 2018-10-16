@@ -24,12 +24,8 @@ class UsernameModel {
         return $this->username;
     }
 
-    public function validateUsername($username): void {
-        if($username !== ''){
+    public function setUsername($username): void {
             $this->username = $username;
-            return;
-        }
-        throw new \InvalidArgumentException('Invalid username', 1);
     }
 
 

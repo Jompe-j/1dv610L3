@@ -74,10 +74,10 @@ class LoginDbModel
 
     public function visitorCookieIsValid($username, $cookieToken): bool
     {
-        $pdo = $this->connectToDb();
-        $preparedStatment = $pdo->prepare('SELECT * FROM userpass WHERE name = ?');
-        $preparedStatment->execute([$username]);
-        $foundRow = $preparedStatment->fetch();
+        // $pdo = $this->connectToDb();
+        $preparedStatement = $this->connection->prepare('SELECT * FROM userpass WHERE name = ?');
+        $preparedStatement->execute([$username]);
+        $foundRow = $preparedStatement->fetch();
         $foundToken = $foundRow['token'];
         $foundExpire = $foundRow['expiration'];
 

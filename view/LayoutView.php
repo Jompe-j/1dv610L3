@@ -34,7 +34,7 @@ class LayoutView {
           
           <div class="container">
               ' . $this->renderContent() . '
-              ' . $this->renderLogutButton() . '
+              ' . $this->renderLogoutButton() . '
               ' . $dateTimeView->show() . '
           </div>
          </body>
@@ -82,7 +82,7 @@ class LayoutView {
         return $this->content->contentToString();
     }
 
-    private function renderLogutButton(): string {
+    private function renderLogoutButton(): string {
         if($this->isLoggedIn){
             return '
 			<form  method="post" >
@@ -102,6 +102,7 @@ class LayoutView {
     public function logOut(): void {
         setcookie($this->loginConstants::getCookieName(), null, -1);
         setcookie($this->loginConstants::getCookiePassword(), null, -1);
+        unset($_COOKIE[$this->loginConstants::getCookieName()], $_COOKIE[$this->loginConstants::getCookiePassword()]);
         $this->setIsLoggedInStatus(false);
     }
 
@@ -113,6 +114,20 @@ class LayoutView {
 
     public function getExpiration() {
         return $this->cookieExpiration;
+    }
+
+    public function setMessageCode(int $code) {
+        if($code === 11){
+            $this->message = 'Welcome';
+        }
+
+        if($code === 12){
+            $this->message = 'Welcome and you will be remembered';
+        }
+
+        if($code === 13){
+            $this->message = 'Welcome back with cookie';
+        }
     }
 
 

@@ -3,7 +3,6 @@ session_start();
 
 //INCLUDE THE FILES NEEDED...
 require_once ('view/IContentView.php');
-require_once('view/View.php');
 require_once('view/DateTimeView.php');
 require_once('view/LayoutView.php');
 require_once('controller/Controller.php');

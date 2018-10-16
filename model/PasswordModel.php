@@ -24,11 +24,8 @@ class PasswordModel {
         return $this->password;
     }
 
-    public function validatePassword($password): void {
-            if($password !== ''){
+    public function setPassword($password): void {
             $this->password = $password;
-            return;
-        }
-        throw new \InvalidArgumentException('Invalid password', 2);
+
     }
 }
