@@ -7,9 +7,8 @@ class Controller
 {
     private $view;
     private $dateTimeView;
-    private $registerModel;
-
     private $loginController;
+    private $registerController;
 
     public function __construct(\view\LayoutView $view)
     {
@@ -19,152 +18,40 @@ class Controller
 
     public function checkViewState() : void {
         $this->loginController = new LoginController($this->view, $this->dateTimeView);
+        $this->registerController = new RegisterController($this->view, $this->dateTimeView);
 
-        if($this->view->isLoggingOut()){
-            $this->loginController->logOut();
+        if($this->loginController->attemptToLogOut()){
+            $this->renderForm();
+            return;
         }
 
-        if($this->view->userTryToLogin() && $this->loginController->loginAttemptWithCredentials()) {
-            $this->view->setMessageCode(11);
-            if ($this->loginController->cookieWasSet()){
-                $this->view->setMessageCode(12);
+        if($this->loginController->attemptDifferentLoginWays()) {
+            $this->renderContent();
+            return;
+        }
+
+        if($this->view->isRegistering()){
+            $this->registerController->renderForm();
+            return;
+        }
+
+        if($this->registerController->userTryToRegister()) {
+            if($this->registerController->attemptToRegister()){
+                $this->loginController->setFormCredentials($this->registerController->getRegistrationCredentials());
+                $this->renderForm();
+                return;
             }
-            $this->renderContent(); // Todo NOT ONLY RENDER BUT ALSO SET logged in to true.
+            $this->registerController->renderForm();
             return;
         }
-
-        if($this->loginController->loginWithSession()){
-            $this->renderContent();
-            return;
-        }
-
-        if($this->loginController->loginWithCookies()){
-            $this->view->setMessageCode(13);
-            $this->renderContent();
-            return;
-        }
-
-            $this->loginController->notLoggedIn(); // TODO SHould not be neccessary when other functionality is in place.
-
+        $this->renderForm(); // TODO SHould not be neccessary when other functionality is in place.
     }
 
     private function renderContent(): void {
         $this->view->render(new CalculatorView(), $this->dateTimeView);
     }
 
-
-
-
-
-
-    // Old Code
-    public function createLoginViewModel() : \model\LoginViewModel {
-
-        if (isset($_POST[\model\LoginConstants::getLogout()]) && $this->loginModel->isLoggedIn()) {
-            $this->loginModel->logOut();
-
-            return new \model\LoginViewModel(
-                false,
-                'Bye bye!',
-                '',
-                false
-                );
-        }
-
-        if (!$this->loginModel->isLoggedIn() && isset($_COOKIE[\model\LoginConstants::getCookieName()], $_COOKIE[\model\LoginConstants::getCookiePassword()])){
-           $cookieCredentials = new \model\LoginCredentialsModel(
-               $_COOKIE[\model\LoginConstants::getCookieName()],
-               $_COOKIE[\model\LoginConstants::getCookiePassword()],
-               false);
-
-            $this->loginModel->cookieAttemptLogin($cookieCredentials);
-
-
-           $cookieAttempt = $this->loginModel->cookieAttemptLogin($cookieCredentials);
-
-           return new \model\LoginViewModel(
-               $cookieAttempt->getSuccess(),
-               $cookieAttempt->getMessage(),
-               $cookieCredentials->getUsername(),
-               false);
-        }
-
-        if (isset($_POST[\model\LoginConstants::getLogin()]) && !$this->loginModel->isLoggedIn()){
-            $loginCredentials = new \model\LoginCredentialsModel(
-                $_POST[\model\LoginConstants::getName()],
-                $_POST[\model\LoginConstants::getPassword()],
-                $this->checkForWantCookie());
-
-            $attempt = $this->loginModel->formAttemptLogin($loginCredentials);
-
-            return new \model\LoginViewModel(
-                $attempt->getSuccess(),
-                $attempt->getMessage(),
-                $loginCredentials->getUsername(),
-                false);
-        }
-
-        if(isset($_POST[\model\LoginConstants::getRegister()])){
-                $registerCredentials = new \model\RegisterCredentialsModel(
-                $_POST[\model\LoginConstants::getRegisterName()],
-                $_POST[\model\LoginConstants::getRegisterPassword()],
-                $_POST[\model\LoginConstants::getRegisterSamePassword()]);
-
-                $registerAttempt = $this->registerModel->formAttemptRegistration($registerCredentials);
-
-                if ($registerAttempt->getSuccess()){
-                    return new \model\LoginViewModel(
-                        false,
-                        $registerAttempt->getMessage(),
-                        $registerAttempt->getUsername(),
-                        false
-                    );
-                }
-
-                return new \model\LoginViewModel(
-                    $registerAttempt->getSuccess(),
-                    $registerAttempt->getMessage(),
-                    $registerAttempt->getUsername(),
-                    true
-                );
-            }
-
-
-
-        if(isset($_GET['toLogin'])){
-            return new \model\LoginViewModel(
-                false,
-                '',
-                '',
-                false
-            );
-        }
-
-        if(isset($_GET[\model\LoginConstants::getToRegister()])){
-            return new \model\LoginViewModel(
-                false,
-                '',
-                '',
-                true
-            );
-        }
-
-        return new \model\LoginViewModel(
-            $this->loginModel->isLoggedIn(),
-            '',
-            '',
-            false);
+    private function renderForm(): void {
+        $this->loginController->renderForm();
     }
-
-
-    private function checkForWantCookie(): bool {
-        if (isset($_POST[\model\LoginConstants::getKeep()])){
-            return true;
-        }
-        return false;
-    }
-
-
-
-
 }

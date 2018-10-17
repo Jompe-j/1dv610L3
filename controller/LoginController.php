@@ -1,17 +1,9 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: johna
- * Date: 2018-10-11
- * Time: 12:13
- */
 
 namespace controller;
 
-
-
+use model\ICredentialsModel;
 use model\LoginCredentialsModel;
-use model\LoginDbModel;
 use model\LoginStateModel;
 
 class LoginController
@@ -21,7 +13,7 @@ class LoginController
     private $loginModel;
     private $loginForm;
     private $credentials;
-    private $cookieWasSet = false;
+    private $cookieCredentials;
 
     public function __construct(\view\LayoutView $layoutView, \view\DateTimeView $dateTimeView)
     {
@@ -31,88 +23,108 @@ class LoginController
         $this->loginModel = new \model\LoginModel();
     }
 
-    public function loginAttemptWithCredentials():bool {
-        $this->credentials = $this->loginForm->getLoginCredentials();
-
-        if(!$this->attemptUpdateCredentials()){
-            return false;
+    public function attemptDifferentLoginWays(): bool {
+        if($this->attemptWithSession() || $this->attemptWithCookies()){
+            return true;
         }
 
-        if(!$this->loginWithCredentials()){
-            return false;
+        if($this->view->userTryToLogin()){
+           return $this->attemptWithCredentials();
         }
 
-        if( $this->credentials->getKeepLoggedIn()){
-            $this->loginForm->setCookie();
-            $this->loginModel->setCookieToRegistry($this->loginForm->getCookieSettings()); // TODO Split into two functions in dbmodel.
-            $this->cookieWasSet = true;
-        }
-
-        $this->setLoggedInStatus(true);
-        return true;
+        return false;
     }
 
-    public function notLoggedIn(): void
-    {
+    public function setFormCredentials(ICredentialsModel $credentials){
+        $this->loginForm->setCredentials($credentials);
+    }
+
+    private function attemptWithCredentials(): bool {
+        try{
+            $this->getUserCredentials();
+        } catch (\LengthException $exception){
+            return false;
+        }
+        $this->loginWithCredentials();
+        $this->attemptToSetCookiesAtLogin();
+        return $this->credentials->getSuccess();
+    }
+
+    private function getUserCredentials(): void {
+        $this->credentials = $this->loginForm->getCredentials();
+    }
+
+    private function loginWithCredentials(): void {
+        $this->credentials = $this->loginModel->userCredentialsLogin($this->credentials);
+        $this->setLoggedInStatus($this->credentials);
+    }
+
+    public function renderForm(): void {
         $this->view->render($this->loginForm, $this->dateTimeView );
     }
 
-    public function loginWithSession(): bool {
-        return $this->loginModel->isSessionSet();
+    private function attemptWithSession(): bool {
+        $this->credentials = $this->loginModel->isSessionSet();
+        $this->setLoggedInStatus($this->credentials);
+        return $this->credentials->getSuccess();
     }
 
-
-    public function loginWithCookies(): bool {
+    private function attemptWithCookies(): bool {
         try{
-            $credentials = $this->loginForm->getCookieCrentials();
-            return $this->loginModel->cookieAttemptLogin($credentials);
+            $this->getCookieCredentials();
         } catch (\Exception $exception){
             return false;
         }
+        $this->loginWithCookies();
+        return $this->cookieCredentials->getSuccess();
     }
 
-    private function attemptUpdateCredentials(): bool {
-        try {
-            $this->updateCredentials();
-            return true;
-        } catch (\Exception $exception) {
-            $this->clearCredentialsPassword();
-            $this->credentials->setIssueCode($exception->getCode());
+    private function getCookieCredentials(): void {
+        $this->cookieCredentials = $this->loginForm->getCookieCredentials();
+    }
+
+    private function loginWithCookies(): void {
+        $this->loginModel->cookieAttemptLogin($this->cookieCredentials);
+        $this->setLoggedInStatus($this->cookieCredentials);
+    }
+
+    private function setLoggedInStatus(LoginCredentialsModel $credentials): void {
+        $this->view->setMessageCode($credentials->getIssueCode());
+        $this->view->setIsLoggedInStatus($credentials->getSuccess());
+    }
+
+    private function logOut(): void {
+        if ($this->attemptDifferentLoginWays()) {
+            $this->credentials = $this->loginModel->logOut($this->credentials);
             $this->loginForm->setCredentials($this->credentials);
-            return false;
+            $this->view->logOut();
         }
     }
 
-    private function updateCredentials(): void {
-        $this->credentials->setUsername($this->loginForm->getUsername());
-        $this->credentials->setPassword($this->loginForm->getPassword());
-        $this->credentials->setKeepLoggedIn($this->loginForm->getKeepLoggedIn());
-    }
-    private function loginWithCredentials(): bool {
-        try {
-            $this->loginModel->userCredentialsLogin($this->credentials);
-            return true;
-        } catch (\Exception $exception) {
-            $this->credentials->setIssueCode($exception->getCode());
-            $this->loginForm->setCredentials($this->credentials);
-            return false;
+    private function attemptToSetCookiesAtLogin(): void {
+        if ($this->credentials->getKeepLoggedIn() && $this->credentials->getSuccess()){
+            $this->setCookieInView();
+            $this->credentials = $this->updateCookieRegistryResult();
+            $this->view->setMessageCode($this->credentials->getIssueCode());// TODO Split into two functions in dbmodel.
         }
     }
 
-    public function setLoggedInStatus($status): void {
-        $this->view->setIsLoggedInStatus($status);
+    public function attemptToLogOut(): bool {
+        if($this->view->isLoggingOut()){
+            $this->logOut();
+            return true;
+        }
+        return false;
     }
 
-    private function clearCredentialsPassword(): void { $this->credentials->setPassword = ''; }
 
-    public function logOut(): void {
-        $this->loginModel->clearSession();
-        $this->view->logOut();
-        $logoutCode = 250;
-        $this->loginForm->setMessage($logoutCode);
+    private function setCookieInView(): void {
+        $this->loginForm->setCookie();
     }
 
-    public function cookieWasSet(): bool {return $this->cookieWasSet; }
+    private function updateCookieRegistryResult(): LoginCredentialsModel {
+       return $this->loginModel->setCookieToRegistry($this->loginForm->getCookieSettings(), $this->credentials);
+    }
 
 
 }

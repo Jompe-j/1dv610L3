@@ -2,19 +2,14 @@
 
 namespace view;
 
-
-use http\Exception;
 use model\CookieSettingsModel;
+use model\ICredentialsModel;
 use model\LoginConstants;
 use model\LoginCredentialsModel;
-use model\LoginStateModel;
-use model\PasswordModel;
-use model\UsernameModel;
 
 class LoginFormView implements IContentView
 {
     private $constants;
-    private $loginCredentials;
     private $cookieSettings;
     private $message;
     private $credentials;
@@ -23,7 +18,6 @@ class LoginFormView implements IContentView
         $this->constants = new LoginConstants(); //TODO How should String dependence be handled?
         $this->credentials = new LoginCredentialsModel();
     }
-
 
     public function contentToString() : string {
         $this->setMessage($this->credentials->getIssueCode());
@@ -59,6 +53,10 @@ class LoginFormView implements IContentView
     }
 
     public function setMessage($code): void {
+        if($code === 0){
+            $this->message = '';
+        }
+
         if($code === 1){
             $this->message = 'Username is missing';
         }
@@ -70,34 +68,28 @@ class LoginFormView implements IContentView
         if($code === 3){
             $this->message = 'Wrong name or password';
         }
+
+        if($code === 4){
+            $this->message = 'Registered new user.';
+        }
+
         if($code === 250){
-            $this->message = 'Bye Bye';
+            $this->message = 'Bye bye!';
         }
     }
 
-    public function getLoginCredentials(): LoginCredentialsModel {
-        return $this->credentials;
-    }
-
-    public function setCredentials($credentials): void {
+    public function setCredentials(ICredentialsModel $credentials): void {
         $this->credentials = $credentials;
     }
 
-    public function getUsername():string  {
-        if ($_POST[$this->constants::getName()] !== ''){
-           return  $_POST[$this->constants::getName()];
+    public function getCredentials(): ?LoginCredentialsModel {
+        try{
+            $this->setUpCredentials();
+            return $this->credentials;
+        } catch (\Exception $exception){
+            $this->credentials->setIssueCode($exception->getCode());
+            throw new \LengthException('Validation issue in Credentials');
         }
-        $code = 1;
-        throw new \UnexpectedValueException('No username provided', $code);
-    }
-
-    public function getPassword() : string  {
-        if($_POST[$this->constants::getPassword()] !== ''){
-            return $_POST[$this->constants::getPassword()];
-        }
-        $code = 2;
-        throw new \UnexpectedValueException('No password provided', $code);
-
     }
 
     public function getKeepLoggedIn(): bool {
@@ -107,14 +99,28 @@ class LoginFormView implements IContentView
         return false;
     }
 
-    public function getCookieCrentials(){
-        if(isset($_COOKIE[$this->constants::getCookieName()], $_COOKIE[$this->constants::getCookiePassword()])){
-            $credentials = new LoginCredentialsModel();
-            $credentials->setUsername($_COOKIE[$this->constants::getCookieName()]);
-            $credentials->setPassword($_COOKIE[$this->constants::getCookiePassword()]);
-            return $credentials;
+    public function getCookieCredentials(): ?LoginCredentialsModel {
+        try{
+            $this->setUpCookieCredentials();
+            return $this->credentials;
+        }catch (\Exception $exception){
+            throw new \LengthException('Validation Issue for Cookie Credentials');
         }
-        throw new \Exception('No cookies');
+    }
+
+    public function getCookieName():string  {
+
+        if (isset($_COOKIE[$this->constants::getCookieName()])){
+            return  $_COOKIE[$this->constants::getCookieName()];
+        }
+        return '';
+    }
+
+    public function getCookiePassword():string  {
+        if (isset($_COOKIE[$this->constants::getCookiePassword()])){
+            return  $_COOKIE[$this->constants::getCookiePassword()];
+        }
+        return '';
     }
 
     public function setCookie(): void {
@@ -130,5 +136,16 @@ class LoginFormView implements IContentView
         return $this->cookieSettings;
     }
 
+    private function setUpCredentials(): void {
+        $this->credentials = new LoginCredentialsModel();
+        $this->credentials->setUsername($_POST[$this->constants::getName()]);
+        $this->credentials->setPassword($_POST[$this->constants::getPassword()]);
+        $this->credentials->setKeepLoggedIn($this->getKeepLoggedIn());
+    }
+
+    private function setUpCookieCredentials(): void {
+        $this->credentials->setUsername($this->getCookieName());
+        $this->credentials->setPassword($this->getCookiePassword());
+    }
 
 }

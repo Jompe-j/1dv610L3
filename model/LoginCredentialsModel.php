@@ -2,51 +2,62 @@
 
 namespace model;
 
-class LoginCredentialsModel
+class LoginCredentialsModel implements ICredentialsModel
 {
-    private $username = '';
-    private $password = '';
+    private $username;
+    private $password;
     private $wantCookies = false;
-    private $isLoggedIn = false;
     private $issueCode = 0;
+    private $success = false;
 
+    public function __construct() {
+        $this->username = new UsernameModel();
+        $this->password = new PasswordModel();
+    }
 
+    public function validateUsername(): void {
+        $this->username->validateUsername();
+    }
     public function getUsername(): string {
-        return $this->username;
+        return $this->username->getUsername();
     }
 
     public function getPassword(): string {
-        return $this->password;
+        return $this->password->getPassword();
     }
 
     public function getKeepLoggedIn(): bool {
         return $this->wantCookies;
     }
 
-    public function getIsLoggedIn(): bool { return $this->isLoggedIn;    }
+    public function getSuccess(): bool { return $this->success;    }
 
     public function getIssueCode(): int {
         return $this->issueCode;
     }
 
     public function setUsername(string $username): void {
-        $this->username = $username;
+        $this->username->setUsername($username);
     }
 
     public function setPassword(string $password): void {
-        $this->password = $password;
+        $this->password->setPassword($password);
     }
 
     public function setKeepLoggedIn(bool $wantCookies): void {
         $this->wantCookies = $wantCookies;
     }
 
-    public function setIsLoggedIn(bool $isLoggedIn): void {
-        $this->isLoggedIn = $isLoggedIn;
+    public function setSuccess(bool $success): void {
+        $this->success = $success;
     }
 
     public function setIssueCode($code): void {
         $this->issueCode = $code;
+    }
+
+    public function validatePassword(): void {
+        $this->password->validatePassword();
     }
 
 

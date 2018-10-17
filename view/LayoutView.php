@@ -10,13 +10,13 @@ class LayoutView {
     private $message = '';
     private $content;
     private $isLoggedIn = false;
+    private $isRegistering = false;
     private $cookieToken;
     private $cookieExpiration;
 
     public function __construct() {
         $this->loginConstants = new \model\LoginConstants();
     }
-
 
     public function render(IContentView $contentView, DateTimeView $dateTimeView): void {
         $this->content = $contentView;
@@ -28,7 +28,7 @@ class LayoutView {
         </head>
         <body>
           <h1>Assignment 3</h1><br>
-          ' . $this->renderRegisterLink(false, $this->isLoggedIn /* TODO Should not be hardcoded.*/) . '
+          ' . $this->renderRegisterLink($this->isRegistering, $this->isLoggedIn /* TODO Should not be hardcoded.*/) . '
 
           ' . $this->renderIsLoggedIn($this->isLoggedIn) . '
           
@@ -49,10 +49,11 @@ class LayoutView {
 
   public function setIsLoggedInStatus(bool $status): void {
         $this->isLoggedIn = $status;
-        if($this->isLoggedIn){
-            $this->message = 'Welcome';
-        }
   }
+
+    public function setIsRegisteringStatus(bool $status): void {
+        $this->isRegistering = $status;
+    }
 
     private function renderRegisterLink($isRegistering, $isLoggedIn): string
     {
@@ -62,10 +63,7 @@ class LayoutView {
         if ($isRegistering){
             return '<a href="?toLogin">Back to login</a>';
         }
-
             return  '<a href="?' . \model\LoginConstants::getToRegister() . '">Register a new user</a>'; //'<a href="?registerUser">Register a new user</a>';
-
-
     }
 
     private function renderIsLoggedIn($isLoggedIn): string {
@@ -86,13 +84,15 @@ class LayoutView {
         if($this->isLoggedIn){
             return '
 			<form  method="post" >
-				<p id="' . $this->loginConstants::getMessageId() . '">' . $this->message .'</p>
+				<p id="' . $this->loginConstants::getMessageId() . '">' . $this->getOneTimeMessage() .'</p>
 				<input type="submit" name="' . $this->loginConstants::getLogout() . '" value="logout"/>
-			</form>
-		';
+			</form>';
         }
         return '';
+    }
 
+    public function isRegistering(): bool {
+        return isset($_GET[$this->loginConstants::getToRegister()]);
     }
 
     public function isLoggingOut(): bool {
@@ -106,8 +106,6 @@ class LayoutView {
         $this->setIsLoggedInStatus(false);
     }
 
-
-
     public function getToken() {
         return $this->cookieToken;
     }
@@ -116,19 +114,23 @@ class LayoutView {
         return $this->cookieExpiration;
     }
 
-    public function setMessageCode(int $code) {
+    private function getOneTimeMessage(){
+        $message = $this->message;
+        $this->message = '';
+        return $message;
+    }
+
+    public function setMessageCode(int $code): void {
         if($code === 11){
             $this->message = 'Welcome';
         }
 
         if($code === 12){
-            $this->message = 'Welcome and you will be remembered';
+            $this->message = 'Welcome back with cookie';
         }
 
         if($code === 13){
-            $this->message = 'Welcome back with cookie';
+            $this->message = 'Welcome and you will be remembered';
         }
     }
-
-
 }

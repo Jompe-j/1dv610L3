@@ -46,16 +46,15 @@ class LoginDbModel
          return $this->comparePassword($passwordFromUser, $foundPassword["password"]);
     }
 
-    public function userExist($username): bool {
+    public function userExist($username): void {
         $preparedStatement = $this->connection->prepare('SELECT name FROM userpass WHERE name = ?');
         $preparedStatement->execute([$username]);
 
         $existingUser = $preparedStatement->fetch();
         if($existingUser){
-            return true;
+            return;
         }
         throw new \InvalidArgumentException("User Does not exist", 3);
-
     }
 
     public function comparePassword($passwordFromUser, $foundPassword): ?bool
@@ -72,19 +71,18 @@ class LoginDbModel
         throw new \InvalidArgumentException('comparePassword() fail', 3);// TODO how to handle errorcodes?
     }
 
-    public function visitorCookieIsValid($username, $cookieToken): bool
-    {
-        // $pdo = $this->connectToDb();
+    public function validateUserCookie($username, $cookieToken): void {
         $preparedStatement = $this->connection->prepare('SELECT * FROM userpass WHERE name = ?');
         $preparedStatement->execute([$username]);
         $foundRow = $preparedStatement->fetch();
         $foundToken = $foundRow['token'];
         $foundExpire = $foundRow['expiration'];
 
-        if ($foundToken === $cookieToken && $foundExpire > time()){
-            return true;
+        if ($foundToken !== $cookieToken || $foundExpire < time()){
+            $code = 14;
+            throw new \InvalidArgumentException('Not valid cookie!', $code);
         }
-        return false;
+
     }
 
     public function setTokenToDb ($username, $token, $expiration): void
@@ -109,9 +107,8 @@ class LoginDbModel
 
     public function insertUser($username, $password): void
     {
-        $password_hash = password_hash($password, PASSWORD_DEFAULT);;
-        $pdo = $this->connectToDb();
-        $preparedStatement = $pdo->prepare('INSERT INTO userpass (id, name, password, token, expiration) VALUES (NULL, ?, ?, NULL, NULL)');
+        $password_hash = password_hash($password, PASSWORD_DEFAULT);
+        $preparedStatement = $this->connection->prepare('INSERT INTO userpass (id, name, password, token, expiration) VALUES (NULL, ?, ?, NULL, NULL)');
         $preparedStatement->execute([$username, $password_hash]);
     }
 

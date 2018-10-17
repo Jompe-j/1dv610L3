@@ -17,15 +17,20 @@ class PasswordModel {
      */
 
     private $password = '';
-    public function __construct() {
+
+    public function setPassword($password): void{
+            $this->password = $password;
+            $this->validatePassword();
     }
 
     public function getPassword(): string {
         return $this->password;
     }
 
-    public function setPassword($password): void {
-            $this->password = $password;
-
+    public function validatePassword(): void {
+        if ($this->password  === ''){
+            $code = 2;
+            throw new \LengthException('Invalid Length of Password', $code);
+        }
     }
 }

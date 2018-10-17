@@ -9,24 +9,25 @@
 namespace model;
 
 
-
-use http\Exception\InvalidArgumentException;
-
 class UsernameModel {
 
     private $username = '';
-
-    public function __construct() {
-
-    }
 
     public function getUsername(): string {
         return $this->username;
     }
 
     public function setUsername($username): void {
-            $this->username = $username;
+        $this->username = $username;
+        $this->validateUsername();
     }
 
+    public function validateUsername(): void {
+        if ($this->username === ''){
+            $code = 1;
+            throw new \LengthException('Invalid Length of username', $code);
+        }
+
+    }
 
 }

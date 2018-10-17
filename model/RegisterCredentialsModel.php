@@ -4,45 +4,40 @@
 namespace model;
 
 
-class RegisterCredentialsModel
-{
-    private $username = "";
-    private $password = "";
-    private $samePassword = "";
+class RegisterCredentialsModel implements ICredentialsModel {
+    private $username = '';
+    private $password = '';
+    private $successStatus = false;
+    private $issueCode = 0;
 
-    public function __construct($username, $password, $samePassword)
-    {
-        $this->setUsername($username);
-        $this->setPassword($password);
-        $this->setSamePassword($samePassword);
+    public function __construct(string $username, string $password) {
+        $this->username = $username;
+        $this->password = $password;
     }
 
-    public function getUsername(): string
-    {
+    public function getUsername(): string {
         return $this->username;
     }
 
-    public function getPassword(): string
-    {
+    public function getPassword(): string {
         return $this->password;
     }
 
-    public function getSamePassword(): string
-    {
-        return $this->samePassword;
+    public function setIssueCode(int $code): void {
+        $this->issueCode = $code;
     }
 
-    private function setUsername($username){
-        $this->username = $username;
+    public function getIssueCode(): int{
+        return $this->issueCode;
     }
 
-    private function setPassword($password){
-        $this->password = $password;
-
+    public function getSuccessStatus(): bool {
+        return $this->successStatus;
     }
 
-    private function setSamePassword($samePassword)
-    {
-        $this->samePassword = $samePassword;
+    public function setSuccessStatus(bool $successStatus): void {
+        $this->successStatus = $successStatus;
     }
+
+
 }
