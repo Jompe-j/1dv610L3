@@ -73,6 +73,10 @@ class LoginFormView implements IContentView
             $this->message = 'Registered new user.';
         }
 
+        if($code === 5){
+            $this->message = 'Wrong information in cookies';
+        }
+
         if($code === 250){
             $this->message = 'Bye bye!';
         }

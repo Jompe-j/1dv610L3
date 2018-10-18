@@ -23,23 +23,27 @@ class LoginModel
             $this->connectToDb();
             $this->checkForUser();
             $this->matchCredentials();
-            $this->setSuccessfulLogin($successCode);
+            $this->updateCredentialsSuccess($successCode);
         } catch (\Exception $exception){
-            $this->setUnsuccessfulLogin($exception->getCode());
+            $this->updateCredentialsFailure($exception->getCode());
         }
         return $this->credentials;
     }
 
-    public function cookieAttemptLogin(LoginCredentialsModel $cookieCredentials): LoginCredentialsModel {
+    public function cookieAttemptLogin(LoginCredentialsModel $cookieCredentials):void{
         $this->credentials = $cookieCredentials;
         $successCode = 12; // Code for login with cookies
         try{
             $this->connectToDb();
             $this->isCookieValid();
-            $this->setSuccessfulLogin($successCode);
+            $this->updateCredentialsSuccess($successCode);
         } catch (\Exception $exception){
-            $this->setUnsuccessfulLogin($exception->getCode());
+            $this->credentials = new LoginCredentialsModel(); // Clear all credentials.
+            $this->updateCredentialsFailure($exception->getCode());
         }
+    }
+
+    public function getUpdatedCredentials(){
         return $this->credentials;
     }
 
@@ -47,9 +51,9 @@ class LoginModel
         $successCode = 0; // Code for attempt with session.
         $this->credentials = new LoginCredentialsModel();
         if(isset($_SESSION['username'])){
-            $this->setSuccessfulLogin($successCode);
+            $this->updateCredentialsSuccess($successCode);
         } else {
-            $this->setUnsuccessfulLogin($successCode);
+            $this->updateCredentialsFailure($successCode);
         }
 
         return $this->credentials;
@@ -61,7 +65,7 @@ class LoginModel
         $successCode = 13;
         $this->connectToDb();
         $this->setToken($cookieSettings);
-        $this->setSuccessfulLogin($successCode);
+        $this->updateCredentialsSuccess($successCode);
         return $this->credentials;
 
     }
@@ -88,13 +92,13 @@ class LoginModel
 
     }
 
-    private function setSuccessfulLogin(int $successCode): void {
+    private function updateCredentialsSuccess(int $successCode): void {
         $this->setSession();
         $this->credentials->setIssueCode($successCode);
         $this->credentials->setSuccess(true);
     }
 
-    private function setUnsuccessfulLogin(int $code): void {
+    private function updateCredentialsFailure(int $code): void {
         $this->credentials->setIssuecode($code);
         $this->credentials->setSuccess(false);
     }
@@ -116,7 +120,7 @@ class LoginModel
         $successCode = 250;
         $this->credentials = $credentials;
         $this->clearSession();
-        $this->setUnsuccessfulLogin($successCode);
+        $this->updateCredentialsFailure($successCode);
         return $this->credentials;
     }
 

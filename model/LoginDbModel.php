@@ -79,7 +79,7 @@ class LoginDbModel
         $foundExpire = $foundRow['expiration'];
 
         if ($foundToken !== $cookieToken || $foundExpire < time()){
-            $code = 14;
+            $code = 5;
             throw new \InvalidArgumentException('Not valid cookie!', $code);
         }
 

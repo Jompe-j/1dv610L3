@@ -71,7 +71,7 @@ class LoginController
 
     private function attemptWithCookies(): bool {
         try{
-            $this->getCookieCredentials();
+            $this->cookieCredentials = $this->getCookieCredentials();
         } catch (\Exception $exception){
             return false;
         }
@@ -79,17 +79,19 @@ class LoginController
         return $this->cookieCredentials->getSuccess();
     }
 
-    private function getCookieCredentials(): void {
-        $this->cookieCredentials = $this->loginForm->getCookieCredentials();
+    private function getCookieCredentials(): ?LoginCredentialsModel {
+        return $this->loginForm->getCookieCredentials();
     }
 
     private function loginWithCookies(): void {
         $this->loginModel->cookieAttemptLogin($this->cookieCredentials);
+        $this->cookieCredentials = $this->loginModel->getUpdatedCredentials();
         $this->setLoggedInStatus($this->cookieCredentials);
     }
 
     private function setLoggedInStatus(LoginCredentialsModel $credentials): void {
         $this->view->setMessageCode($credentials->getIssueCode());
+        $this->loginForm->setCredentials($credentials);
         $this->view->setIsLoggedInStatus($credentials->getSuccess());
     }
 
@@ -117,7 +119,6 @@ class LoginController
         return false;
     }
 
-
     private function setCookieInView(): void {
         $this->loginForm->setCookie();
     }
@@ -125,6 +126,4 @@ class LoginController
     private function updateCookieRegistryResult(): LoginCredentialsModel {
        return $this->loginModel->setCookieToRegistry($this->loginForm->getCookieSettings(), $this->credentials);
     }
-
-
 }
