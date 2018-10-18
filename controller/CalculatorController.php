@@ -25,16 +25,20 @@ class CalculatorController
 
     public function calculatorAction(): bool
     {
+        return $this->calculator->calculatorPost();
 
-       /* if isset($_POST["calculator"]) {
-            $state = compute($_POST["calculator_hiddenbox"], $_POST["calculator"])
-        }*/
 
-        $this->calculator->setPrevious();
+
+
+        /* if isset($_POST["calculator"]) {
+             $state = compute($_POST["calculator_hiddenbox"], $_POST["calculator"])
+         }*/
+
+       /* $this->calculator->setPrevious();
         if ($this->calculator->userDoingAction()){
             return true;
         }
-        return false;
+        return false;*/
     }
 
     public function handleAction()
@@ -46,6 +50,10 @@ class CalculatorController
 
     public function getUpdatedCalculator(): CalculatorView
     {
+        $tmpValue = $this->calculator->getActionValue();
+        $tmpValue .= $this->calculator->getHiddenValue();
+        $this->calculator->setHiddenValue($tmpValue);
+        $this->calculator->setTotalInput($tmpValue);
         return $this->calculator;
 
     }

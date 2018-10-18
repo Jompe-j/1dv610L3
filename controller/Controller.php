@@ -25,8 +25,7 @@ class Controller
         $this->calculatorController = new CalculatorController($this->calculatorView);
 
         if($this->calculatorController->calculatorAction()){
-            $this->calculatorController->handleAction();
-
+           $this->calculatorView = $this->calculatorController->getUpdatedCalculator();
         }
 
      /*   $route = $_SERVER["HTTP_VERB"] . ' ' . $_SERVER["QUERY_STRING"];

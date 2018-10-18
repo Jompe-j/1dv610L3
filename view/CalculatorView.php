@@ -12,10 +12,11 @@ namespace view;
 use model\LoginConstants;
 
 class CalculatorView implements IContentView {
-    private $input;
+    private $totalInput;
     private $constants;
     private $previous;
     private $url;
+    private $hiddenInput;
 
     public function __construct()
     {
@@ -30,7 +31,8 @@ class CalculatorView implements IContentView {
         <h1>Hello to my calculator</h1>
          
         <form method="post" action="' . '?'. $this->url . '" >
-        <textarea> ' . $this->input .' </textarea>
+        <input type="hidden" value="' . $this->hiddenInput . '" name="hiddenField">
+        <textarea> ' . $this->totalInput .' </textarea>
             <input type="submit" value="1" name="calculator">
             <input type="submit" value="2" name="calculator">
             <input type="submit" value="3" name="calculator">
@@ -66,12 +68,21 @@ class CalculatorView implements IContentView {
 
     public function printValue($getActionValue)
     {
-        $this->input = $getActionValue;
+        $this->totalInput = $getActionValue;
     }
 
     public function render()
     {
         return $this->contentToString();
+    }
+
+    public function getHiddenValue()
+    {
+        return $_POST['hiddenField'];
+    }
+
+    public function setTotalInput($input){
+        $this->totalInput = $input;
     }
 
     public function setPrevious()
@@ -80,5 +91,15 @@ class CalculatorView implements IContentView {
             $this->previous = $_POST[$this->constants::getToRegister()];
         }
     }
+
+    public function calculatorPost(): bool
+    {
+        return isset($_POST['calculator']);
+    }
+
+    public function setHiddenValue($tmpValue){
+        $this->hiddenInput = $tmpValue;
+    }
+
 
 }
