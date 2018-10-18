@@ -8,6 +8,7 @@
 
 namespace controller;
 use http\Exception;
+use view\CalculatorView;
 
 class RegisterController {
 
@@ -33,9 +34,9 @@ class RegisterController {
 
     }
 
-    public function renderForm(): void {
+    public function renderForm(CalculatorView $calculatorView): void {
         $this->view->setIsRegisteringStatus(true);
-        $this->view->render($this->registerForm, $this->dateTimeView);
+        $this->view->render($this->registerForm, $calculatorView, $this->dateTimeView);
     }
 
     private function attemptWithCredentials(): bool {

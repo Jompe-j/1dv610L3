@@ -5,6 +5,7 @@ namespace controller;
 use model\ICredentialsModel;
 use model\LoginCredentialsModel;
 use model\LoginStateModel;
+use view\CalculatorView;
 
 class LoginController
 {
@@ -59,8 +60,8 @@ class LoginController
         $this->setLoggedInStatus($this->credentials);
     }
 
-    public function renderForm(): void {
-        $this->view->render($this->loginForm, $this->dateTimeView );
+    public function renderForm(CalculatorView $calculatorView): void {
+        $this->view->render($this->loginForm, $calculatorView, $this->dateTimeView );
     }
 
     private function attemptWithSession(): bool {

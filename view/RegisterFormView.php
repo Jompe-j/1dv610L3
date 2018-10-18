@@ -25,7 +25,7 @@ class RegisterFormView implements IContentView
     private function generateRegisterUser($message, $username)
     {
         return ' 
-			<form method="post"> 
+			<form method="post" action="?register"> 
 				<fieldset>
 					<legend>Register a new user - Write username and password</legend>
 					<p id="'.\model\LoginConstants::getRegisterMessage().'">' . $message . '</p>

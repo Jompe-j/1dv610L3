@@ -9,49 +9,67 @@ class Controller
     private $dateTimeView;
     private $loginController;
     private $registerController;
+    private $calculatorController;
+    private $calculatorView;
 
     public function __construct(\view\LayoutView $view)
     {
         $this->view = $view;
         $this->dateTimeView = new \view\DateTimeView();
+        $this->calculatorView = new CalculatorView();
     }
 
     public function checkViewState() : void {
         $this->loginController = new LoginController($this->view, $this->dateTimeView);
         $this->registerController = new RegisterController($this->view, $this->dateTimeView);
+        $this->calculatorController = new CalculatorController($this->calculatorView);
+
+        if($this->calculatorController->calculatorAction()){
+            $this->calculatorController->handleAction();
+
+        }
+
+     /*   $route = $_SERVER["HTTP_VERB"] . ' ' . $_SERVER["QUERY_STRING"];
+
+        if ($route === 'POST register') {
+
+        }
+
+        'GET register'*/
+
 
         if($this->loginController->attemptToLogOut()){
-            $this->renderForm();
+            $this->renderLoginForm();
             return;
         }
 
         if($this->loginController->attemptDifferentLoginWays()) {
-            $this->renderContent();
+            $this->renderLoginForm($this->calculatorView);
             return;
         }
 
         if($this->view->isRegistering()){
-            $this->registerController->renderForm();
-            return;
-        }
-
-        if($this->registerController->userTryToRegister()) {
-            if($this->registerController->attemptToRegister()){
+            if($this->registerController->userTryToRegister() && $this->registerController->attemptToRegister()) {
                 $this->loginController->setFormCredentials($this->registerController->getRegistrationCredentials());
-                $this->renderForm();
+                $this->renderLoginForm();
                 return;
             }
-            $this->registerController->renderForm();
+            $this->renderRegistrationForm();
             return;
         }
-        $this->renderForm(); // TODO SHould not be neccessary when other functionality is in place.
+        $this->renderLoginForm();
     }
 
-    private function renderContent(): void {
-        $this->view->render(new CalculatorView(), $this->dateTimeView);
+ /*   private function renderContent(): void {
+        $this->view->render(, $this->dateTimeView);
+    }*/
+
+    private function renderLoginForm(): void {
+        $this->loginController->renderForm($this->calculatorView);
     }
 
-    private function renderForm(): void {
-        $this->loginController->renderForm();
+    public function renderRegistrationForm(): void
+    {
+        $this->registerController->renderForm($this->calculatorView);
     }
 }

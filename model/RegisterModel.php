@@ -13,7 +13,7 @@ class RegisterModel
 
     public function __construct() {
         $this->register = new LoginDbModel();
-    }
+        }
 
     public function formAttemptRegistration(\model\RegisterCredentialsModel $registerCredentials): RegisterCredentialsModel {
         $this->credentials = $registerCredentials;

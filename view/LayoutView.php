@@ -18,8 +18,8 @@ class LayoutView {
         $this->loginConstants = new \model\LoginConstants();
     }
 
-    public function render(IContentView $contentView, DateTimeView $dateTimeView): void {
-        $this->content = $contentView;
+    public function render(IContentView $formView, CalculatorView $calculatorView, DateTimeView $dateTimeView): void {
+        $this->content = $formView;
     echo '<!DOCTYPE html>
       <html>
         <head>
@@ -33,7 +33,8 @@ class LayoutView {
           ' . $this->renderIsLoggedIn($this->isLoggedIn) . '
           
           <div class="container">
-              ' . $this->renderContent() . '
+              ' . $calculatorView->render() . '
+              ' . $this->renderForm($this->isLoggedIn) . '
               ' . $this->renderLogoutButton() . '
               ' . $dateTimeView->show() . '
           </div>
@@ -61,7 +62,7 @@ class LayoutView {
             return '';
         }
         if ($isRegistering){
-            return '<a href="?toLogin">Back to login</a>';
+            return '<a href="?">Back to login</a>'; //changed
         }
             return  '<a href="?' . \model\LoginConstants::getToRegister() . '">Register a new user</a>'; //'<a href="?registerUser">Register a new user</a>';
     }
@@ -75,9 +76,12 @@ class LayoutView {
               <br><br>';
     }
 
-    private function renderContent() : string
+    private function renderForm($isLoggedIn) : string
     {
-        return $this->content->contentToString();
+        if(!$isLoggedIn){
+            return $this->content->contentToString();
+        }
+        return '';
     }
 
     private function renderLogoutButton(): string {
