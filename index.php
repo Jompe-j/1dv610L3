@@ -3,6 +3,7 @@ session_start();
 
 //INCLUDE THE FILES NEEDED...
 require_once ('model/ICredentialsModel.php');
+
 require_once ('view/IContentView.php');
 require_once('view/DateTimeView.php');
 require_once('view/LayoutView.php');
@@ -19,6 +20,7 @@ require_once ('model/TokenModel.php');
 require_once ('model/RegisterModel.php');
 require_once ('model/RegisterCredentialsModel.php');
 //require_once ('model/RegisterAttempt.php');
+require_once ('model/CalculatorEvaluator.php');
 require_once ('model/CalculatorModel.php');
 require_once ('view/LoginFormView.php');
 require_once ('controller/LoginController.php');

@@ -33,6 +33,7 @@ class CalculatorView implements IContentView {
         <form method="post" action="' . '?'. $this->url . '" >
         <input type="hidden" value="' . $this->hiddenInput . '" name="hiddenField">
         <textarea> ' . $this->totalInput .' </textarea>
+        <br>
             <input type="submit" value="1" name="calculator">
             <input type="submit" value="2" name="calculator">
             <input type="submit" value="3" name="calculator">
@@ -46,6 +47,7 @@ class CalculatorView implements IContentView {
             <input type="submit" value="+" name="calculator">
             <input type="submit" value="*" name="calculator">
             <input type="submit" value="/" name="calculator">
+            <input type="submit" value="^" name="calculator">
              
             <input type="submit" value="0" name="calculator">
             <input type="submit" value="Reset" name="calculator">
@@ -97,8 +99,14 @@ class CalculatorView implements IContentView {
         return isset($_POST['calculator']);
     }
 
-    public function setHiddenValue($tmpValue){
-        $this->hiddenInput = $tmpValue;
+    public function setHiddenValue($hiddenInput){
+        $this->hiddenInput = $hiddenInput;
+    }
+
+    public function updateCalculatorWindow($newTotal) {
+
+       $this->setHiddenValue($newTotal);
+       $this->totalInput = $newTotal;
     }
 
 

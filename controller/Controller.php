@@ -24,7 +24,7 @@ class Controller
         $this->registerController = new RegisterController($this->view, $this->dateTimeView);
         $this->calculatorController = new CalculatorController($this->calculatorView);
 
-        if($this->calculatorController->calculatorAction()){
+        if($this->calculatorController->isCalculatorPosting()){
            $this->calculatorView = $this->calculatorController->getUpdatedCalculator();
         }
 

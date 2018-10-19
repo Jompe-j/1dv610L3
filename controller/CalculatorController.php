@@ -21,39 +21,29 @@ class CalculatorController
     public function __construct(CalculatorView $calculator){
         $this->calculator = new CalculatorView();
         $this->calculatorModel = new \model\CalculatorModel();
-}
+    }
 
-    public function calculatorAction(): bool
+    public function isCalculatorPosting(): bool
     {
         return $this->calculator->calculatorPost();
 
-
-
-
-        /* if isset($_POST["calculator"]) {
-             $state = compute($_POST["calculator_hiddenbox"], $_POST["calculator"])
-         }*/
-
-       /* $this->calculator->setPrevious();
-        if ($this->calculator->userDoingAction()){
-            return true;
-        }
-        return false;*/
     }
 
-    public function handleAction()
+ /*   public function handleAction()
     {
         $this->calculatorModel->actOnAction($this->calculator->getActionValue());
         $this->calculator->printValue($this->calculatorModel->getActionValue());
 
-    }
+    }*/
 
     public function getUpdatedCalculator(): CalculatorView
     {
-        $tmpValue = $this->calculator->getActionValue();
-        $tmpValue .= $this->calculator->getHiddenValue();
-        $this->calculator->setHiddenValue($tmpValue);
-        $this->calculator->setTotalInput($tmpValue);
+        $newTotal = $this->calculatorModel->actionHandler(
+            $this->calculator->getActionValue(),
+            $this->calculator->getHiddenValue()
+        );
+
+        $this->calculator->updateCalculatorWindow($newTotal);
         return $this->calculator;
 
     }
