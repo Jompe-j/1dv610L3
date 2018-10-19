@@ -8,19 +8,19 @@
 
 namespace model;
 
-
 class CalculatorEvaluator {
     private $toEvaluate;
     private $stack = Array();
-    private $finishedExpression;
+    private $postFixedExpression;
+    private $expressionToPostFix;
 
     public function __construct($input) {
         $this->toEvaluate = $input;
         $this->calculate();
-
+        $this->processPostFixedExpression();
     }
 
-    private function calculate() {
+    private function calculate(): void {
         $this->buildStringToSuffixFix();
         $this->infixToSuffix();
 
@@ -29,73 +29,64 @@ class CalculatorEvaluator {
      * @param $hiddenValue
      * @return string
      */
-    private function buildStringToSuffixFix(){
-
+    private function buildStringToSuffixFix() {
         $this->delimitValues();
-
-        //$this->infixToSuffix($buildstring);
     }
 
-    private function delimitValues() {
+    private function delimitValues(): void {
         $toEvaluateArr = str_split($this->toEvaluate);
-        $buildstring = '|';
-
-        foreach ($toEvaluateArr as $char) {
-            if ($char === '+' || $char === '-' || $char === '*' || $char === '/' || $char === '^'){
-                $buildstring .= '|' . $char . '|';
-            } else {
-                $buildstring .= $char;
-            }
+        $tmp = '';
+        $separatedInputs = Array();
+        foreach ($toEvaluateArr as $char){
+             if (is_numeric($char)){
+                 $tmp .= $char;
+             }   else {
+                 $separatedInputs[] = $tmp;
+                 $separatedInputs[] = $char;
+                 $tmp = '';
+             }
         }
-
-        $buildstring .= '|';
-
-        var_dump($buildstring);
-
-        $this->toEvaluate = $buildstring;
+        $separatedInputs[] = $tmp;
+        $this->expressionToPostFix = $separatedInputs;
+        var_dump($separatedInputs);
     }
 
-    private function infixToSuffix() {
-        $inputExpression = str_split($this->toEvaluate);
-        $counter = 0;
-        $tmpNumber = '';
-
-        foreach ($inputExpression as $part){
-            if(is_numeric($part) || $part === '|'){
-                $tmpNumber .= $part;
+    private function infixToSuffix(): void {
+        foreach ($this->expressionToPostFix as $value){
+            if(is_numeric($value)){
+                $this->postFixedExpression[] = $value;
             } else {
-                $this->setOperator($part);
-            }
-
-            if ($tmpNumber !== '' && $part === '|'){
-                $this->finishedExpression .= $tmpNumber;
-                $tmpNumber = '';
+                $this->setOperator($value);
             }
         }
-
         $this->emptyStack();
-
-        var_dump($this->stack);
-        var_dump($this->finishedExpression);
-
+        var_dump($this->postFixedExpression);
     }
 
-    private function setOperator($part) {
+    private function setOperator($part): void {
         if(empty($this->stack)){
             $this->stack[] = $part;
             return;
         }
-
         $this->orderPrecedence($part);
 
     }
 
-    private function orderPrecedence($part) {
+    private function orderPrecedence($part): void {
         $partPrecedence = $this->setPrecedenceValue($part);
         $stackedPrecedence = $this->setPrecedenceValue(end($this->stack));
 
         while ($partPrecedence < $stackedPrecedence){
-            $this->finishedExpression .= array_pop($this->stack);
+            $this->setPostFixedExpressionFromStack();
+            $stackedPrecedence = $this->setPrecedenceValue(end($this->stack));
+            if(empty($this->stack)){
+                $this->stack[] = $part;
+                return;
+            }
+        }
+
+        while ($partPrecedence < $stackedPrecedence){
+            $this->setPostFixedExpressionFromStack();
             $stackedPrecedence = $this->setPrecedenceValue(end($this->stack));
             if(empty($this->stack)){
                 $this->stack[] = $part;
@@ -104,15 +95,13 @@ class CalculatorEvaluator {
         }
 
         if ($partPrecedence === $stackedPrecedence){         //left association used meaning that first found (on stack)
-            $this->finishedExpression .= array_pop($this->stack);    // will be set to string.
+            $this->setPostFixedExpressionFromStack();    // will be set to string.
             $this->stack[] = $part;
         }
 
         if ($partPrecedence > $stackedPrecedence){
             $this->stack[] = $part;
         }
-
-
     }
 
     private function setPrecedenceValue($operator): int {
@@ -126,12 +115,50 @@ class CalculatorEvaluator {
         return 15; // normally all other operators have higher precedence.
     }
 
-    private function emptyStack() {
+    private function emptyStack(): void {
         if(empty($this->stack)){
             return;
         }
         while (!empty($this->stack)){
-            $this->finishedExpression .= array_pop($this->stack);
+            $this->setPostFixedExpressionFromStack();
         }
+    }
+
+    private function setPostFixedExpressionFromStack(): void {
+        $this->postFixedExpression[] = array_pop($this->stack);
+    }
+
+    private function processPostFixedExpression(){
+        foreach ($this->postFixedExpression as $value){
+            if (is_numeric($value)){
+                $this->stack[] = $value;
+            } else {
+                $rightVal = array_pop($this->stack);
+                $leftVal = array_pop($this->stack);
+
+                switch ($value){ // avoid using eval().
+                    case '+':
+                        $this->stack[] = $leftVal + $rightVal;
+                        break;
+
+                    case '-':
+                        $this->stack[] = $leftVal - $rightVal;
+                        break;
+
+                    case '*':
+                        $this->stack[] = $leftVal * $rightVal;
+                        break;
+
+                    case '/':
+                        $this->stack[] = $leftVal / $rightVal;
+                        break;
+
+                    case '^':
+                        $this->stack[] = $leftVal ** $rightVal;
+                        break;
+                }
+            }
+        }
+        var_dump($this->stack);
     }
 }
