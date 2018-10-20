@@ -85,7 +85,6 @@ class RegisterFormView implements IContentView
             $validCharacters = true;
         } catch (\Exception $exception){
             $this->message = $exception->getMessage();
-
         }
 
         $this->username = $this->validator->getCleanedUsername();

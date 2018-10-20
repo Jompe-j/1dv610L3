@@ -33,7 +33,7 @@ class LayoutView {
           ' . $this->renderIsLoggedIn($this->isLoggedIn) . '
           
           <div class="container">
-              ' . $calculatorView->render() . '
+              ' . $calculatorView->render($this->isLoggedIn) . '
               ' . $this->renderForm($this->isLoggedIn) . '
               ' . $this->renderLogoutButton() . '
               ' . $dateTimeView->show() . '
@@ -62,9 +62,9 @@ class LayoutView {
             return '';
         }
         if ($isRegistering){
-            return '<a href="?">Back to login</a>'; //changed
+            return '<a href="?">Back to login</a>';
         }
-            return  '<a href="?' . \model\LoginConstants::getToRegister() . '">Register a new user</a>'; //'<a href="?registerUser">Register a new user</a>';
+            return  '<a href="?' . \model\LoginConstants::getToRegister() . '">Register a new user</a>';
     }
 
     private function renderIsLoggedIn($isLoggedIn): string {
@@ -128,11 +128,9 @@ class LayoutView {
         if($code === 11){
             $this->message = 'Welcome';
         }
-
         if($code === 12){
             $this->message = 'Welcome back with cookie';
         }
-
         if($code === 13){
             $this->message = 'Welcome and you will be remembered';
         }

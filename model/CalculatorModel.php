@@ -26,23 +26,22 @@ class CalculatorModel
     }
 
     public function actionHandler($actionValue, $hiddenValue): string {
-        if($this->isReset($actionValue)){
+/*        if($this->isReset($actionValue)){
             return $this->clearedString;
         }
 
         if($this->isEvaluateAction($actionValue)){
-            return $this->getValueOfEvaluatedString($hiddenValue);
-        }
+            return $this->calculateValue($hiddenValue);
+        }*/
+
 
         return $hiddenValue . $actionValue;
+
     }
 
-    private function getValueOfEvaluatedString($hiddenValue): string {
-
-        $evaluator = new CalculatorEvaluator($hiddenValue);
-
-
-        return $hiddenValue;
+    public function calculateInput($hiddenValue) {
+        $calculator = new CalculatorEvaluator($hiddenValue);
+        return $calculator->getCalculatedValue();
     }
 
     private function isReset($action) {
@@ -56,10 +55,7 @@ class CalculatorModel
 
     private function isEvaluateAction($actionValue) {
 
-        if($actionValue === '='){
-            return true;
-        }
-        return false;
+
     }
 
 

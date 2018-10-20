@@ -9,7 +9,6 @@
 namespace controller;
 
 
-use http\QueryString;
 use view\CalculatorView;
 
 class CalculatorController
@@ -26,25 +25,16 @@ class CalculatorController
     public function isCalculatorPosting(): bool
     {
         return $this->calculator->calculatorPost();
-
     }
-
- /*   public function handleAction()
-    {
-        $this->calculatorModel->actOnAction($this->calculator->getActionValue());
-        $this->calculator->printValue($this->calculatorModel->getActionValue());
-
-    }*/
 
     public function getUpdatedCalculator(): CalculatorView
     {
-        $newTotal = $this->calculatorModel->actionHandler(
-            $this->calculator->getActionValue(),
-            $this->calculator->getHiddenValue()
-        );
-
-        $this->calculator->updateCalculatorWindow($newTotal);
+       $this->calculator->updateInput();
+       $input = $this->calculator->getHiddenValue();
+        if($this->calculator->isEvaluatingAction() ){
+            $result = $this->calculatorModel->calculateInput($input);
+            $this->calculator->setHiddenValue($result);
+        }
         return $this->calculator;
-
     }
 }

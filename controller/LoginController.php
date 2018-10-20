@@ -57,6 +57,7 @@ class LoginController
 
     private function loginWithCredentials(): void {
         $this->credentials = $this->loginModel->userCredentialsLogin($this->credentials);
+
         $this->setLoggedInStatus($this->credentials);
     }
 
@@ -65,7 +66,8 @@ class LoginController
     }
 
     private function attemptWithSession(): bool {
-        $this->credentials = $this->loginModel->isSessionSet();
+        $this->loginModel->sessionLogin();
+        $this->credentials = $this->loginModel->getUpdatedCredentials();
         $this->setLoggedInStatus($this->credentials);
         return $this->credentials->getSuccess();
     }

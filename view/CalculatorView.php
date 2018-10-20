@@ -25,12 +25,102 @@ class CalculatorView implements IContentView {
     }
 
 
-    public function contentToString() : string {
+    public function contentToString(bool $isloggedIn) : string {
         return '
         <div>
         <h1>Hello to my calculator</h1>
-         
-        <form method="post" action="' . '?'. $this->url . '" >
+        ' . $this->isLoggedInHTML($isloggedIn) . '
+        ' . $this->formHTML() .'
+        
+        </div>
+        ';
+    }
+
+    public function userDoingAction(): bool{
+        if(isset($_POST['calculator'])){
+            return true;
+        }
+        return false;
+    }
+
+    public function isEvaluatingAction() {
+        if($this->getActionValue() === '='){
+            return true;
+        }
+        return false;
+    }
+
+    public function getActionValue()
+    {
+        return $_POST['calculator'];
+    }
+
+    public function render(bool $loggedInStatus)
+    {
+        return $this->contentToString($loggedInStatus);
+    }
+
+    public function getHiddenValue()
+    {
+        return $_POST['hiddenField'];
+    }
+
+    public function updateInput(){
+        $this->addOperator();
+        $this->addNumber();
+        $this->reset();
+        $this->totalInput = $this->hiddenInput;
+        
+    }
+    private function addOperator() {
+        if($this->checkForOperator($this->getActionValue())){
+            if($this->getHiddenValue() === ''){
+                $this->hiddenInput = '';
+            } else if($this->checkForOperator($this->getLastValueOfInput())){
+                $this->hiddenInput = substr_replace($this->getHiddenValue(), $this->getActionValue(), -1);
+            } else {
+                $this->hiddenInput = $this->getHiddenValue() . $this->getActionValue();
+            }
+        }
+    }
+
+    private function addNumber() {
+        if(is_numeric($this->getActionValue())) {
+            $this->hiddenInput = $this->getHiddenValue() . $this->getActionValue();
+        }
+    }
+
+    private function reset() {
+        if ($this->getActionValue() === 'Reset'){
+            $this->hiddenInput = '';
+        }
+    }
+
+    public function calculatorPost(): bool
+    {
+        return isset($_POST['calculator']);
+    }
+
+    public function setHiddenValue($hiddenInput){
+        $this->hiddenInput = $hiddenInput;
+        $this->totalInput = $hiddenInput;
+    }
+
+    public function updateCalculatorWindow($newTotal) {
+
+       $this->setHiddenValue($newTotal);
+       $this->totalInput = $newTotal;
+    }
+
+    private function isLoggedInHTML(bool $isloggedIn): string {
+        if($isloggedIn){
+            return '<h2>You are logged in </h2>';
+        }
+        return '<h2> You are not logged in </h2>';
+    }
+
+    private function formHTML() {
+        return ' <form method="post" action="' . '?'. $this->url . '" >
         <input type="hidden" value="' . $this->hiddenInput . '" name="hiddenField">
         <textarea> ' . $this->totalInput .' </textarea>
         <br>
@@ -48,66 +138,17 @@ class CalculatorView implements IContentView {
             <input type="submit" value="*" name="calculator">
             <input type="submit" value="/" name="calculator">
             <input type="submit" value="^" name="calculator">
-             
             <input type="submit" value="0" name="calculator">
             <input type="submit" value="Reset" name="calculator">
-            <input type="submit" value="=" name="calculator">
-        </div>
-        ';
+            <input type="submit" value="=" name="calculator"> ';
     }
 
-    public function userDoingAction(): bool{
-        if(isset($_POST['calculator'])){
-            return true;
-        }
-        return false;
+    private function checkForOperator(string $input): bool {
+        return !(is_numeric($input) || $input === '=');
     }
 
-    public function getActionValue()
-    {
-        return $_POST['calculator'];
+    private function getLastValueOfInput() {
+        return substr($this->getHiddenValue(), -1);
     }
-
-    public function printValue($getActionValue)
-    {
-        $this->totalInput = $getActionValue;
-    }
-
-    public function render()
-    {
-        return $this->contentToString();
-    }
-
-    public function getHiddenValue()
-    {
-        return $_POST['hiddenField'];
-    }
-
-    public function setTotalInput($input){
-        $this->totalInput = $input;
-    }
-
-    public function setPrevious()
-    {
-        if(isset($_POST[$this->constants::getToRegister()])){
-            $this->previous = $_POST[$this->constants::getToRegister()];
-        }
-    }
-
-    public function calculatorPost(): bool
-    {
-        return isset($_POST['calculator']);
-    }
-
-    public function setHiddenValue($hiddenInput){
-        $this->hiddenInput = $hiddenInput;
-    }
-
-    public function updateCalculatorWindow($newTotal) {
-
-       $this->setHiddenValue($newTotal);
-       $this->totalInput = $newTotal;
-    }
-
 
 }

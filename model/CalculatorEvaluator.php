@@ -20,6 +20,10 @@ class CalculatorEvaluator {
         $this->processPostFixedExpression();
     }
 
+    public function getCalculatedValue() {
+        return array_shift($this->stack);
+    }
+
     private function calculate(): void {
         $this->buildStringToSuffixFix();
         $this->infixToSuffix();
@@ -159,6 +163,5 @@ class CalculatorEvaluator {
                 }
             }
         }
-        var_dump($this->stack);
     }
 }

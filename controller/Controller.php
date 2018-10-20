@@ -28,15 +28,6 @@ class Controller
            $this->calculatorView = $this->calculatorController->getUpdatedCalculator();
         }
 
-     /*   $route = $_SERVER["HTTP_VERB"] . ' ' . $_SERVER["QUERY_STRING"];
-
-        if ($route === 'POST register') {
-
-        }
-
-        'GET register'*/
-
-
         if($this->loginController->attemptToLogOut()){
             $this->renderLoginForm();
             return;
@@ -58,10 +49,6 @@ class Controller
         }
         $this->renderLoginForm();
     }
-
- /*   private function renderContent(): void {
-        $this->view->render(, $this->dateTimeView);
-    }*/
 
     private function renderLoginForm(): void {
         $this->loginController->renderForm($this->calculatorView);
