@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: johna
- * Date: 2018-10-19
- * Time: 20:15
- */
 
 namespace model;
 
@@ -29,11 +23,8 @@ class CalculatorEvaluator {
         $this->infixToSuffix();
 
     }
-    /**
-     * @param $hiddenValue
-     * @return string
-     */
-    private function buildStringToSuffixFix() {
+
+    private function buildStringToSuffixFix(): void {
         $this->delimitValues();
     }
 
@@ -52,7 +43,6 @@ class CalculatorEvaluator {
         }
         $separatedInputs[] = $tmp;
         $this->expressionToPostFix = $separatedInputs;
-        var_dump($separatedInputs);
     }
 
     private function infixToSuffix(): void {
@@ -64,19 +54,17 @@ class CalculatorEvaluator {
             }
         }
         $this->emptyStack();
-        var_dump($this->postFixedExpression);
     }
 
-    private function setOperator($part): void {
+    private function setOperator(string $part): void {
         if(empty($this->stack)){
             $this->stack[] = $part;
             return;
         }
         $this->orderPrecedence($part);
-
     }
 
-    private function orderPrecedence($part): void {
+    private function orderPrecedence(string $part): void {
         $partPrecedence = $this->setPrecedenceValue($part);
         $stackedPrecedence = $this->setPrecedenceValue(end($this->stack));
 
@@ -99,7 +87,7 @@ class CalculatorEvaluator {
         }
 
         if ($partPrecedence === $stackedPrecedence){         //left association used meaning that first found (on stack)
-            $this->setPostFixedExpressionFromStack();    // will be set to string.
+            $this->setPostFixedExpressionFromStack();    // will be set to expression array
             $this->stack[] = $part;
         }
 
@@ -108,7 +96,7 @@ class CalculatorEvaluator {
         }
     }
 
-    private function setPrecedenceValue($operator): int {
+    private function setPrecedenceValue(string $operator): int {
         if($operator ==='+' || $operator === '-'){
             return 10; // use constants to indicate order of precedence while leaving room for further development.
         }
@@ -132,7 +120,7 @@ class CalculatorEvaluator {
         $this->postFixedExpression[] = array_pop($this->stack);
     }
 
-    private function processPostFixedExpression(){
+    private function processPostFixedExpression(): void {
         foreach ($this->postFixedExpression as $value){
             if (is_numeric($value)){
                 $this->stack[] = $value;

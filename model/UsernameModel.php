@@ -17,7 +17,7 @@ class UsernameModel {
         return $this->username;
     }
 
-    public function setUsername($username): void {
+    public function setUsername(string $username): void {
         $this->username = $username;
         $this->validateUsername();
     }
@@ -27,7 +27,5 @@ class UsernameModel {
             $code = 1;
             throw new \LengthException('Invalid Length of username', $code);
         }
-
     }
-
 }

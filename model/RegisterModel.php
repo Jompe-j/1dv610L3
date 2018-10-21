@@ -1,21 +1,17 @@
 <?php
 
-
 namespace model;
-
-
-use http\Exception\InvalidArgumentException;
-use http\Exception\UnexpectedValueException;
 
 class RegisterModel
 {
     private $credentials;
+    private $register;
 
     public function __construct() {
         $this->register = new LoginDbModel();
-        }
+    }
 
-    public function formAttemptRegistration(\model\RegisterCredentialsModel $registerCredentials): RegisterCredentialsModel {
+    public function formAttemptRegistration(RegisterCredentialsModel $registerCredentials): RegisterCredentialsModel {
         $this->credentials = $registerCredentials;
         $successCode = 31;
         try{
@@ -36,7 +32,6 @@ class RegisterModel
             return;
         }
         throw new \InvalidArgumentException('Username already exists', 3);
-
     }
 
     private function registerUser(): void {
@@ -56,5 +51,4 @@ class RegisterModel
     private function connectToDb(): void {
         $this->register->connectToDb();
     }
-
 }

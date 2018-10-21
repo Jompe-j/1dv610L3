@@ -6,6 +6,13 @@ class LoginDbModel
 {
     private $dbSetting;
     private $connection;
+    private $selectPassword = 'SELECT password FROM userpass WHERE name = ?';
+    private $selectName =  'SELECT name FROM userpass WHERE name = ?';
+    private $selectAll = 'SELECT * FROM userpass WHERE name = ?';
+    private $updateToken = 'UPDATE userpass SET token = ? WHERE userpass . name = ?';
+    private $updateExpiration = 'UPDATE userpass SET expiration = ? WHERE userpass . name = ?';
+    private $insertNewUser = 'INSERT INTO userpass (id, name, password, token, expiration) VALUES (NULL, ?, ?, NULL, NULL)';
+    private $preparedStatement;
 
     public function connectToDb()
     {
@@ -27,15 +34,12 @@ class LoginDbModel
 
         } catch (\PDOException $exception) {
             throw new \PDOException($exception->getMessage(), (int)$exception->getCode());
-
         }
     }
 
     public function matchCredentials($username, $passwordFromUser): ?bool
     {
-        $preparedStatement = $this->connection->prepare('SELECT password FROM userpass WHERE name = ?');
-        $preparedStatement->execute([$username]);
-        $foundPassword = $preparedStatement->fetch();
+        $foundPassword = $this->fetchFromSelected($this->selectPassword, [$username]);
 
         if(!$foundPassword){
             return false;
@@ -44,14 +48,41 @@ class LoginDbModel
     }
 
     public function userExist($username): void {
-        $preparedStatement = $this->connection->prepare('SELECT name FROM userpass WHERE name = ?');
-        $preparedStatement->execute([$username]);
-        $existingUser = $preparedStatement->fetch();
+        $existingUser = $this->fetchFromSelected($this->selectName, [$username]);
 
         if($existingUser){
             return;
         }
         throw new \InvalidArgumentException("User Does not exist", 3);
+    }
+
+    public function validateUserCookie($username, $cookieToken): void {
+
+        $foundRow = $this->fetchFromSelected($this->selectAll, [$username]);
+
+        $foundToken = $foundRow['token'];
+        $foundExpire = $foundRow['expiration'];
+
+        if ($foundToken !== $cookieToken || $foundExpire < time()){
+            $code = 5;
+            throw new \InvalidArgumentException('Not valid cookie!', $code);
+        }
+    }
+
+    public function setTokenToDb (string $username, string $token, string $expiration): void
+    {
+        $this->prepareStatement($this->updateToken);
+        $this->preparedStatement->execute([$token, $username]);
+
+        $this->prepareStatement($this->updateExpiration);
+        $this->preparedStatement->execute([$expiration, $username]);
+    }
+
+    public function insertUser($username, $password): void
+    {
+        $password_hash = password_hash($password, PASSWORD_DEFAULT);
+        $this->prepareStatement($this->insertNewUser);
+        $this->preparedStatement->execute([$username, $password_hash]);
     }
 
     private function comparePassword($passwordFromUser, $foundPassword): ?bool
@@ -65,46 +96,16 @@ class LoginDbModel
             return true;
         }
 
-        throw new \InvalidArgumentException('comparePassword() fail', 3);// TODO how to handle errorcodes?
+        throw new \InvalidArgumentException('comparePassword() fail', 3);
     }
 
-    public function validateUserCookie($username, $cookieToken): void {
-        $preparedStatement = $this->connection->prepare('SELECT * FROM userpass WHERE name = ?');
-        $preparedStatement->execute([$username]);
-        $foundRow = $preparedStatement->fetch();
-        $foundToken = $foundRow['token'];
-        $foundExpire = $foundRow['expiration'];
-
-        if ($foundToken !== $cookieToken || $foundExpire < time()){
-            $code = 5;
-            throw new \InvalidArgumentException('Not valid cookie!', $code);
-        }
-
+    private function prepareStatement(string $SQLStatemnte): void {
+        $this->preparedStatement = $this->connection->prepare($SQLStatemnte);
     }
 
-    public function setTokenToDb ($username, $token, $expiration): void
-    {
-
-            $updateToken = $this->connection->prepare('UPDATE userpass SET token = ? WHERE userpass . name = ?');
-            $updateToken->execute([$token, $username]);
-
-            $updateExpiration = $this->connection->prepare('UPDATE userpass SET expiration = ? WHERE userpass . name = ?');
-            $updateExpiration->execute([$expiration, $username]);
-    }
-
-/*    public function getToken($username)
-    {
-        $pdo = $this->connectToDb();
-        $preparedStatement = $pdo->prepare('SELECT token FROM userpass WHERE name = ?');
-        $preparedStatement->execute([$username]);
-        $result = $preparedStatement->fetch();
-        return $result['token'];
-    }*/
-
-    public function insertUser($username, $password): void
-    {
-        $password_hash = password_hash($password, PASSWORD_DEFAULT);
-        $preparedStatement = $this->connection->prepare('INSERT INTO userpass (id, name, password, token, expiration) VALUES (NULL, ?, ?, NULL, NULL)');
-        $preparedStatement->execute([$username, $password_hash]);
+    private function fetchFromSelected(string $SQLString, array $array) {
+        $this->prepareStatement($SQLString);
+        $this->preparedStatement->execute($array);
+        return $this->preparedStatement->fetch();
     }
 }

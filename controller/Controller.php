@@ -22,7 +22,7 @@ class Controller
     public function checkViewState() : void {
         $this->loginController = new LoginController($this->view, $this->dateTimeView);
         $this->registerController = new RegisterController($this->view, $this->dateTimeView);
-        $this->calculatorController = new CalculatorController($this->calculatorView);
+        $this->calculatorController = new CalculatorController();
 
         if($this->calculatorController->isCalculatorPosting()){
            $this->calculatorView = $this->calculatorController->getUpdatedCalculator();
@@ -34,11 +34,11 @@ class Controller
         }
 
         if($this->loginController->attemptDifferentLoginWays()) {
-            $this->renderLoginForm($this->calculatorView);
+            $this->renderLoginForm();
             return;
         }
 
-        if($this->view->isRegistering()){
+        if($this->registerController->isRegistering()){
             if($this->registerController->userTryToRegister() && $this->registerController->attemptToRegister()) {
                 $this->loginController->setFormCredentials($this->registerController->getRegistrationCredentials());
                 $this->renderLoginForm();

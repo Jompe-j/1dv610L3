@@ -13,9 +13,11 @@ require_once('model/LoginCredentialsModel.php');
 require_once ('settings/DbSettings.php');
 require_once('model/LoginModel.php');
 require_once ('model/LoginConstants.php');
+require_once ('model/RegisterConstants.php');
 require_once ('model/TokenModel.php');
 require_once ('model/RegisterModel.php');
 require_once ('model/RegisterCredentialsModel.php');
+require_once ('model/CalculatorEvaluator.php');
 require_once ('model/CalculatorEvaluator.php');
 require_once ('model/CalculatorModel.php');
 require_once ('view/LoginFormView.php');
@@ -27,6 +29,7 @@ require_once ('model/CookieSettingsModel.php');
 require_once ('controller/RegisterController.php');
 require_once ('view/RegisterFormView.php');
 require_once ('view/RegisterCredentialsValidator.php');
+require_once ('model/CalculatorConstants.php');
 
 
 
@@ -34,14 +37,9 @@ require_once ('view/RegisterCredentialsValidator.php');
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 
-
-//$LoginController = new \controller\LoginController(new model\LoginModel);
-
-
 //CREATE OBJECTS OF THE VIEWS
 $dateTimeView = new \view\DateTimeView();
 $layoutView = new \view\LayoutView();
-// $view = new \view\View($layoutView);
 
 //CREATE CONTROLLERS
 $controller = new \controller\Controller($layoutView);

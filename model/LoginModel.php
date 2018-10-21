@@ -3,22 +3,24 @@
 
 namespace model;
 
-
-use http\Exception;
-
 class LoginModel
 {
     private $credentials;
     private $registry;
-
+    private $cookieLoginCode = 12;
+    private $credentialsLoginCode = 11;
+    private $sessionLoginCode = 0;
+    private $setCookieCode = 13;
+    private $logoutCode = 250;
+    private $sessionName = 'username';
 
     public function __construct() {
         $this->registry = new LoginDbModel();
-
     }
+
     public function userCredentialsLogin(LoginCredentialsModel $credentials): LoginCredentialsModel {
         $this->credentials = $credentials;
-        $successCode = 11; // Code for login with credentials.
+        $successCode = $this->credentialsLoginCode;
         try{
             $this->connectToDb();
             $this->checkForUser();
@@ -32,7 +34,7 @@ class LoginModel
 
     public function cookieAttemptLogin(LoginCredentialsModel $cookieCredentials):void{
         $this->credentials = $cookieCredentials;
-        $successCode = 12; // Code for login with cookies
+        $successCode = $this->cookieLoginCode;
         try{
             $this->connectToDb();
             $this->isCookieValid();
@@ -48,7 +50,7 @@ class LoginModel
     }
 
     public function sessionLogin(): void {
-        $successCode = 0; // Code for attempt with session.
+        $successCode = $this->sessionLoginCode;
         $this->credentials = new LoginCredentialsModel();
         if($this->isSessionSet()){
             $this->setUsernameFromSession();
@@ -60,17 +62,24 @@ class LoginModel
 
     public function setCookieToRegistry(CookieSettingsModel $cookieSettings, LoginCredentialsModel $credentials): LoginCredentialsModel {
         $this->credentials = $credentials;
-        $successCode = 13;
+        $successCode = $this->setCookieCode;
         $this->connectToDb();
         $this->setToken($cookieSettings);
         $this->updateCredentialsSuccess($successCode);
         return $this->credentials;
-
     }
 
     public function clearSession(): void {
         session_unset();
         session_destroy();
+    }
+
+    public function logOut(): LoginCredentialsModel {
+        $successCode = $this->logoutCode;
+        $this->credentials = new LoginCredentialsModel();
+        $this->clearSession();
+        $this->updateCredentialsFailure($successCode);
+        return $this->credentials;
     }
 
     private function connectToDb(): void {
@@ -86,7 +95,7 @@ class LoginModel
     }
 
     private function setSession(): void {
-        $_SESSION['username'] = $this->credentials->getUsername();
+        $_SESSION[$this->sessionName] = $this->credentials->getUsername();
     }
 
     private function updateCredentialsSuccess(int $successCode): void {
@@ -100,7 +109,6 @@ class LoginModel
         $this->credentials->setSuccess(false);
     }
 
-
     private function isCookieValid(): void {
         $this->registry->validateUserCookie($this->credentials->getUsername(), $this->credentials->getPassword());
     }
@@ -113,26 +121,11 @@ class LoginModel
         );
     }
 
-    public function logOut($credentials) {
-        $successCode = 250;
-        $this->credentials = $credentials; // TODO Why does the logout need credentials?
-        $this->credentials = new LoginCredentialsModel(); // TODO Remove this or line above.
-        $this->clearSession();
-        $this->updateCredentialsFailure($successCode);
-        return $this->credentials;
-    }
-
     private function isSessionSet(): bool {
-        if(isset($_SESSION['username'])){
-            return true;
-        } else {
-            return false;
-        }
+        return isset($_SESSION[$this->sessionName]);
     }
 
-    private function setUsernameFromSession() {
-        $this->credentials->setUsername($_SESSION['username']);
+    private function setUsernameFromSession(): void {
+        $this->credentials->setUsername($_SESSION[$this->sessionName]);
     }
-
-
 }

@@ -1,23 +1,10 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: johna
- * Date: 2018-10-16
- * Time: 20:20
- */
 
 namespace view;
 
-
 class RegisterCredentialsValidator {
 
-    /**
-     * RegisterCredentialsValidator constructor.
-     */
     private $username;
-    public function __construct() {
-
-    }
 
     public function validateUserName($username): void {
         $this->username = $username;

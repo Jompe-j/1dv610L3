@@ -12,6 +12,7 @@ class LayoutView {
     private $cookieToken;
     private $cookieExpiration;
 
+
     public function __construct() {
         $this->loginConstants = new \model\LoginConstants();
     }
@@ -26,7 +27,7 @@ class LayoutView {
         </head>
         <body>
           <h1>Assignment 3</h1><br>
-          ' . $this->renderRegisterLink($this->isRegistering, $this->isLoggedIn /* TODO Should not be hardcoded.*/) . '
+          ' . $this->renderRegisterLink($this->isRegistering, $this->isLoggedIn) . '
 
           ' . $this->renderIsLoggedIn($this->isLoggedIn) . '
           
@@ -54,6 +55,41 @@ class LayoutView {
         $this->isRegistering = $status;
     }
 
+    /*public function isRegistering(): bool {
+        return isset($_GET[$this->loginConstants::getToRegister()]);
+    }*/
+
+    public function isLoggingOut(): bool {
+        return isset($_POST[$this->loginConstants::getLogout()]);
+    }
+
+    public function logOut(): void {
+        setcookie($this->loginConstants::getCookieName(), null, -1);
+        setcookie($this->loginConstants::getCookiePassword(), null, -1);
+        unset($_COOKIE[$this->loginConstants::getCookieName()], $_COOKIE[$this->loginConstants::getCookiePassword()]);
+        $this->setIsLoggedInStatus(false);
+    }
+
+    public function getCookieToken() {
+        return $this->cookieToken;
+    }
+
+    public function getExpiration() {
+        return $this->cookieExpiration;
+    }
+
+    public function setMessageCode(int $code): void {
+        if($code === 11){
+            $this->message = 'Welcome';
+        }
+        if($code === 12){
+            $this->message = 'Welcome back with cookie';
+        }
+        if($code === 13){
+            $this->message = 'Welcome and you will be remembered';
+        }
+    }
+
     private function renderRegisterLink($isRegistering, $isLoggedIn): string
     {
         if ($isLoggedIn){
@@ -62,19 +98,18 @@ class LayoutView {
         if ($isRegistering){
             return '<a href="?">Back to login</a>';
         }
-            return  '<a href="?' . \model\LoginConstants::getToRegister() . '">Register a new user</a>';
+            return  '<a href="?' . \model\RegisterConstants::getToRegister() . '">Register a new user</a>';
     }
 
-    private function renderIsLoggedIn($isLoggedIn): string {
+    private function renderIsLoggedIn(bool $isLoggedIn): string {
         if ($isLoggedIn) {
             return '<h2>Logged in</h2>';
         }
-
         return '<h2>Not logged in</h2>
               <br><br>';
     }
 
-    private function renderForm($isLoggedIn) : string
+    private function renderForm(bool $isLoggedIn) : string
     {
         if(!$isLoggedIn){
             return $this->content->contentToString();
@@ -93,44 +128,9 @@ class LayoutView {
         return '';
     }
 
-    public function isRegistering(): bool {
-        return isset($_GET[$this->loginConstants::getToRegister()]);
-    }
-
-    public function isLoggingOut(): bool {
-            return isset($_POST[$this->loginConstants::getLogout()]);
-    }
-
-    public function logOut(): void {
-        setcookie($this->loginConstants::getCookieName(), null, -1);
-        setcookie($this->loginConstants::getCookiePassword(), null, -1);
-        unset($_COOKIE[$this->loginConstants::getCookieName()], $_COOKIE[$this->loginConstants::getCookiePassword()]);
-        $this->setIsLoggedInStatus(false);
-    }
-
-    public function getCookieToken() {
-        return $this->cookieToken;
-    }
-
-    public function getExpiration() {
-        return $this->cookieExpiration;
-    }
-
-    private function getOneTimeMessage(){
+    private function getOneTimeMessage(): string {
         $message = $this->message;
         $this->message = '';
         return $message;
-    }
-
-    public function setMessageCode(int $code): void {
-        if($code === 11){
-            $this->message = 'Welcome';
-        }
-        if($code === 12){
-            $this->message = 'Welcome back with cookie';
-        }
-        if($code === 13){
-            $this->message = 'Welcome and you will be remembered';
-        }
     }
 }

@@ -1,12 +1,10 @@
 <?php
 
-
 namespace model;
 
-
 class RegisterCredentialsModel implements ICredentialsModel {
-    private $username = '';
-    private $password = '';
+    private $username;
+    private $password;
     private $successStatus = false;
     private $issueCode = 0;
 
@@ -38,6 +36,4 @@ class RegisterCredentialsModel implements ICredentialsModel {
     public function setSuccessStatus(bool $successStatus): void {
         $this->successStatus = $successStatus;
     }
-
-
 }

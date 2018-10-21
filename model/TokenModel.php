@@ -13,12 +13,6 @@ class TokenModel
         $this->generateToken();
     }
 
-    private function generateToken()
-    {
-        $bytes = openssl_random_pseudo_bytes(12, $cstrong);
-        $this->token = bin2hex($bytes);
-    }
-
     public function getToken() {
         return $this->token;
     }
@@ -27,5 +21,8 @@ class TokenModel
         return $this->isStrong;
     }
 
-
+    private function generateToken(): void {
+        $bytes = openssl_random_pseudo_bytes(12, $cstrong);
+        $this->token = bin2hex($bytes);
+    }
 }

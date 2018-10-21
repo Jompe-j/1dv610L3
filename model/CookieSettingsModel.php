@@ -32,8 +32,4 @@ class CookieSettingsModel {
     public function getExpiration(){
         return $this->expiration;
     }
-
-
-
-
 }

@@ -4,7 +4,6 @@ namespace controller;
 
 use model\ICredentialsModel;
 use model\LoginCredentialsModel;
-//use model\LoginStateModel;
 use view\CalculatorView;
 
 class LoginController
@@ -18,7 +17,7 @@ class LoginController
 
     public function __construct(\view\LayoutView $layoutView, \view\DateTimeView $dateTimeView)
     {
-        $this->view = $layoutView; // TODO When should dependencies be injected and when should they be created within the class?
+        $this->view = $layoutView;
         $this->dateTimeView = $dateTimeView;
         $this->loginForm = new \view\LoginFormView();
         $this->loginModel = new \model\LoginModel();
@@ -110,7 +109,7 @@ class LoginController
         if ($this->credentials->getKeepLoggedIn() && $this->credentials->getSuccess()){
             $this->setCookieInView();
             $this->credentials = $this->updateCookieRegistryResult();
-            $this->view->setMessageCode($this->credentials->getIssueCode());// TODO Split into two functions in dbmodel.
+            $this->view->setMessageCode($this->credentials->getIssueCode());
         }
     }
     private function setCookieInView(): void {
@@ -123,7 +122,7 @@ class LoginController
 
     private function logOut(): void {
         if ($this->attemptDifferentLoginWays()) {
-            $this->credentials = $this->loginModel->logOut($this->credentials);
+            $this->credentials = $this->loginModel->logOut();
             $this->loginForm->setCredentials($this->credentials);
             $this->view->logOut();
         }

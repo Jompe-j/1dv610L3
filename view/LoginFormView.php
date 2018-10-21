@@ -15,7 +15,7 @@ class LoginFormView implements IContentView
     private $credentials;
 
     public function __construct() {
-        $this->constants = new LoginConstants(); //TODO How should String dependence be handled?
+        $this->constants = new LoginConstants();
         $this->credentials = new LoginCredentialsModel();
     }
 
@@ -39,10 +39,7 @@ class LoginFormView implements IContentView
     }
 
     public function getKeepLoggedIn(): bool {
-        if (isset($_POST[$this->constants::getKeep()])){
-            return true;
-        }
-        return false;
+        return isset($_POST[$this->constants::getKeep()]);
     }
 
     public function getCookieCredentials(): ?LoginCredentialsModel {
@@ -82,7 +79,7 @@ class LoginFormView implements IContentView
         return $this->cookieSettings;
     }
 
-    public function setMessage($code): void {
+    public function setMessage(int $code): void {
         if($code === 0){
             $this->message = '';
         }

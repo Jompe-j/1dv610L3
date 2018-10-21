@@ -11,14 +11,9 @@ namespace model;
 
 class PasswordModel {
 
-    /**
-     * PasswordModel constructor.
-     * @param $getPassword
-     */
-
     private $password = '';
 
-    public function setPassword($password): void{
+    public function setPassword(string $password): void{
             $this->password = $password;
             $this->validatePassword();
     }

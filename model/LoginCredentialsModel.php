@@ -30,7 +30,9 @@ class LoginCredentialsModel implements ICredentialsModel
         return $this->wantCookies;
     }
 
-    public function getSuccess(): bool { return $this->success;    }
+    public function getSuccess(): bool {
+        return $this->success;
+    }
 
     public function getIssueCode(): int {
         return $this->issueCode;
@@ -59,6 +61,4 @@ class LoginCredentialsModel implements ICredentialsModel
     public function validatePassword(): void {
         $this->password->validatePassword();
     }
-
-
 }
