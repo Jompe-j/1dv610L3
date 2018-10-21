@@ -25,6 +25,11 @@ class RegisterController {
         $this->registerModel = new \model\RegisterModel();
     }
 
+    public function renderForm(CalculatorView $calculatorView): void {
+        $this->view->setIsRegisteringStatus(true);
+        $this->view->render($this->registerForm, $calculatorView, $this->dateTimeView);
+    }
+
     public function userTryToRegister(): bool {
         return $this->registerForm->userTryToRegister();
     }
@@ -34,9 +39,8 @@ class RegisterController {
 
     }
 
-    public function renderForm(CalculatorView $calculatorView): void {
-        $this->view->setIsRegisteringStatus(true);
-        $this->view->render($this->registerForm, $calculatorView, $this->dateTimeView);
+    public function getRegistrationCredentials() {
+        return $this->credentials;
     }
 
     private function attemptWithCredentials(): bool {
@@ -49,9 +53,7 @@ class RegisterController {
         return $this->credentials->getSuccessStatus();
     }
 
-    public function getRegistrationCredentials() {
-        return $this->credentials;
-    }
+
 
 
 }

@@ -29,8 +29,6 @@ class LoginDbModel
             throw new \PDOException($exception->getMessage(), (int)$exception->getCode());
 
         }
-
-
     }
 
     public function matchCredentials($username, $passwordFromUser): ?bool
@@ -42,22 +40,21 @@ class LoginDbModel
         if(!$foundPassword){
             return false;
         }
-
          return $this->comparePassword($passwordFromUser, $foundPassword["password"]);
     }
 
     public function userExist($username): void {
         $preparedStatement = $this->connection->prepare('SELECT name FROM userpass WHERE name = ?');
         $preparedStatement->execute([$username]);
-
         $existingUser = $preparedStatement->fetch();
+
         if($existingUser){
             return;
         }
         throw new \InvalidArgumentException("User Does not exist", 3);
     }
 
-    public function comparePassword($passwordFromUser, $foundPassword): ?bool
+    private function comparePassword($passwordFromUser, $foundPassword): ?bool
     {
         $arePasswordsMatching = password_verify($passwordFromUser, $foundPassword);
         if(!$arePasswordsMatching){
@@ -93,17 +90,16 @@ class LoginDbModel
 
             $updateExpiration = $this->connection->prepare('UPDATE userpass SET expiration = ? WHERE userpass . name = ?');
             $updateExpiration->execute([$expiration, $username]);
-
     }
 
-    public function getToken($username)
+/*    public function getToken($username)
     {
         $pdo = $this->connectToDb();
         $preparedStatement = $pdo->prepare('SELECT token FROM userpass WHERE name = ?');
         $preparedStatement->execute([$username]);
         $result = $preparedStatement->fetch();
         return $result['token'];
-    }
+    }*/
 
     public function insertUser($username, $password): void
     {
@@ -111,7 +107,4 @@ class LoginDbModel
         $preparedStatement = $this->connection->prepare('INSERT INTO userpass (id, name, password, token, expiration) VALUES (NULL, ?, ?, NULL, NULL)');
         $preparedStatement->execute([$username, $password_hash]);
     }
-
-
-
 }

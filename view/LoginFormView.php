@@ -24,64 +24,6 @@ class LoginFormView implements IContentView
         return $this->generateLoginFormHTML($this->message, $this->credentials->getUsername());
     }
 
-    /**
-     * Generate HTML code on the output buffer for the logout button
-     * @param $message , String output message
-     * @param $username
-     * @return string
-     */
-    private function generateLoginFormHTML($message, $username) : string {
-        return '
-			<form method="post"> 
-				<fieldset>
-					<legend>Login - enter Username and password</legend>
-					<p id="' . $this->constants::getMessageId() . '">' . $message . '</p>
-					
-					<label for="' . $this->constants::getName() . '">Username :</label>
-					<input type="text" id="' . $this->constants::getName() . '" name="' . $this->constants::getName() . '" value="' . $username . '" />
-
-					<label for="' . $this->constants::getPassword() . '">Password :</label>
-					<input type="password" id="' . $this->constants::getPassword() . '" name="' . $this->constants::getPassword() . '" />
-
-					<label for="' . $this->constants::getKeep() . '">Keep me logged in  :</label>
-					<input type="checkbox" id="' . $this->constants::getKeep() . '" name="' . $this->constants::getKeep() . '" />
-					
-					<input type="submit" name="' . $this->constants::getLogin() . '" value="login" />
-				</fieldset>
-			</form>
-		';
-    }
-
-    public function setMessage($code): void {
-        if($code === 0){
-            $this->message = '';
-        }
-
-        if($code === 1){
-            $this->message = 'Username is missing';
-        }
-
-        if($code === 2){
-            $this->message = 'Password is missing';
-        }
-
-        if($code === 3){
-            $this->message = 'Wrong name or password';
-        }
-
-        if($code === 4){
-            $this->message = 'Registered new user.';
-        }
-
-        if($code === 5){
-            $this->message = 'Wrong information in cookies';
-        }
-
-        if($code === 250){
-            $this->message = 'Bye bye!';
-        }
-    }
-
     public function setCredentials(ICredentialsModel $credentials): void {
         $this->credentials = $credentials;
     }
@@ -138,6 +80,64 @@ class LoginFormView implements IContentView
 
     public function getCookieSettings() : CookieSettingsModel{
         return $this->cookieSettings;
+    }
+
+    public function setMessage($code): void {
+        if($code === 0){
+            $this->message = '';
+        }
+
+        if($code === 1){
+            $this->message = 'Username is missing';
+        }
+
+        if($code === 2){
+            $this->message = 'Password is missing';
+        }
+
+        if($code === 3){
+            $this->message = 'Wrong name or password';
+        }
+
+        if($code === 4){
+            $this->message = 'Registered new user.';
+        }
+
+        if($code === 5){
+            $this->message = 'Wrong information in cookies';
+        }
+
+        if($code === 250){
+            $this->message = 'Bye bye!';
+        }
+    }
+
+    /**
+     * Generate HTML code on the output buffer for the logout button
+     * @param $message , String output message
+     * @param $username
+     * @return string
+     */
+    private function generateLoginFormHTML($message, $username) : string {
+        return '
+			<form method="post"> 
+				<fieldset>
+					<legend>Login - enter Username and password</legend>
+					<p id="' . $this->constants::getMessageId() . '">' . $message . '</p>
+					
+					<label for="' . $this->constants::getName() . '">Username :</label>
+					<input type="text" id="' . $this->constants::getName() . '" name="' . $this->constants::getName() . '" value="' . $username . '" />
+
+					<label for="' . $this->constants::getPassword() . '">Password :</label>
+					<input type="password" id="' . $this->constants::getPassword() . '" name="' . $this->constants::getPassword() . '" />
+
+					<label for="' . $this->constants::getKeep() . '">Keep me logged in  :</label>
+					<input type="checkbox" id="' . $this->constants::getKeep() . '" name="' . $this->constants::getKeep() . '" />
+					
+					<input type="submit" name="' . $this->constants::getLogin() . '" value="login" />
+				</fieldset>
+			</form>
+		';
     }
 
     private function setUpCredentials(): void {

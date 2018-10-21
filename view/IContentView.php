@@ -10,6 +10,6 @@ namespace view;
 
 
 interface IContentView {
-
+    public function contentToString();
 
 }

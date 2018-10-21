@@ -4,7 +4,7 @@ namespace controller;
 
 use model\ICredentialsModel;
 use model\LoginCredentialsModel;
-use model\LoginStateModel;
+//use model\LoginStateModel;
 use view\CalculatorView;
 
 class LoginController
@@ -36,8 +36,20 @@ class LoginController
         return false;
     }
 
-    public function setFormCredentials(ICredentialsModel $credentials){
+    public function setFormCredentials(ICredentialsModel $credentials): void {
         $this->loginForm->setCredentials($credentials);
+    }
+
+    public function renderForm(CalculatorView $calculatorView): void {
+        $this->view->render($this->loginForm, $calculatorView, $this->dateTimeView );
+    }
+
+    public function attemptToLogOut(): bool {
+        if($this->view->isLoggingOut()){
+            $this->logOut();
+            return true;
+        }
+        return false;
     }
 
     private function attemptWithCredentials(): bool {
@@ -59,10 +71,6 @@ class LoginController
         $this->credentials = $this->loginModel->userCredentialsLogin($this->credentials);
 
         $this->setLoggedInStatus($this->credentials);
-    }
-
-    public function renderForm(CalculatorView $calculatorView): void {
-        $this->view->render($this->loginForm, $calculatorView, $this->dateTimeView );
     }
 
     private function attemptWithSession(): bool {
@@ -98,6 +106,21 @@ class LoginController
         $this->view->setIsLoggedInStatus($credentials->getSuccess());
     }
 
+    private function attemptToSetCookiesAtLogin(): void {
+        if ($this->credentials->getKeepLoggedIn() && $this->credentials->getSuccess()){
+            $this->setCookieInView();
+            $this->credentials = $this->updateCookieRegistryResult();
+            $this->view->setMessageCode($this->credentials->getIssueCode());// TODO Split into two functions in dbmodel.
+        }
+    }
+    private function setCookieInView(): void {
+        $this->loginForm->setCookie();
+    }
+
+    private function updateCookieRegistryResult(): LoginCredentialsModel {
+        return $this->loginModel->setCookieToRegistry($this->loginForm->getCookieSettings(), $this->credentials);
+    }
+
     private function logOut(): void {
         if ($this->attemptDifferentLoginWays()) {
             $this->credentials = $this->loginModel->logOut($this->credentials);
@@ -106,27 +129,5 @@ class LoginController
         }
     }
 
-    private function attemptToSetCookiesAtLogin(): void {
-        if ($this->credentials->getKeepLoggedIn() && $this->credentials->getSuccess()){
-            $this->setCookieInView();
-            $this->credentials = $this->updateCookieRegistryResult();
-            $this->view->setMessageCode($this->credentials->getIssueCode());// TODO Split into two functions in dbmodel.
-        }
-    }
 
-    public function attemptToLogOut(): bool {
-        if($this->view->isLoggingOut()){
-            $this->logOut();
-            return true;
-        }
-        return false;
-    }
-
-    private function setCookieInView(): void {
-        $this->loginForm->setCookie();
-    }
-
-    private function updateCookieRegistryResult(): LoginCredentialsModel {
-       return $this->loginModel->setCookieToRegistry($this->loginForm->getCookieSettings(), $this->credentials);
-    }
 }

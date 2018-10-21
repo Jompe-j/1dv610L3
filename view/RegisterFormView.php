@@ -22,35 +22,6 @@ class RegisterFormView implements IContentView
     $this->credentials = new LoginCredentialsModel();
 }
 
-    private function generateRegisterUser($message, $username)
-    {
-        return ' 
-			<form method="post" action="?register"> 
-				<fieldset>
-					<legend>Register a new user - Write username and password</legend>
-					<p id="'.\model\LoginConstants::getRegisterMessage().'">' . $message . '</p>
-					
-					<label for="' . \model\LoginConstants::getRegisterName() . '">Username :</label>
-					<input type="text" id="'.\model\LoginConstants::getRegisterName().'" name="' . \model\LoginConstants::getRegisterName() . '" value="' . $this->getOneTimeUsername() . '" />
-
-					<label for="' . \model\LoginConstants::getRegisterPassword() . '">Password :</label>
-					<input type="password" id="'.\model\LoginConstants::getRegisterPassword().'" name="' . \model\LoginConstants::getRegisterPassword() . '" />
-					
-					<label for="' . \model\LoginConstants::getRegisterSamePassword() . '">Repeat password :</label>
-					<input type="password" id="'.\model\LoginConstants::getRegisterSamePassword().'" name="' . \model\LoginConstants::getRegisterSamePassword() . '" />
-					
-					<input type="submit" name="' . \model\LoginConstants::getRegister() . '" value="register" />
-				</fieldset>
-			</form>
-		';
-    }
-
-    private function getOneTimeUsername(){
-        $username = $this->username;
-        $this->username = '';
-        return $username;
-    }
-
     public function getCredentials(): RegisterCredentialsModel {
         $this->username = $this->getUsername();
         $password = $this->getPassword();
@@ -96,6 +67,37 @@ class RegisterFormView implements IContentView
 
         return $this->credentials;
     }
+
+    private function generateRegisterUser($message, $username)
+    {
+        return ' 
+			<form method="post" action="?register"> 
+				<fieldset>
+					<legend>Register a new user - Write username and password</legend>
+					<p id="'.\model\LoginConstants::getRegisterMessage().'">' . $message . '</p>
+					
+					<label for="' . \model\LoginConstants::getRegisterName() . '">Username :</label>
+					<input type="text" id="'.\model\LoginConstants::getRegisterName().'" name="' . \model\LoginConstants::getRegisterName() . '" value="' . $this->getOneTimeUsername() . '" />
+
+					<label for="' . \model\LoginConstants::getRegisterPassword() . '">Password :</label>
+					<input type="password" id="'.\model\LoginConstants::getRegisterPassword().'" name="' . \model\LoginConstants::getRegisterPassword() . '" />
+					
+					<label for="' . \model\LoginConstants::getRegisterSamePassword() . '">Repeat password :</label>
+					<input type="password" id="'.\model\LoginConstants::getRegisterSamePassword().'" name="' . \model\LoginConstants::getRegisterSamePassword() . '" />
+					
+					<input type="submit" name="' . \model\LoginConstants::getRegister() . '" value="register" />
+				</fieldset>
+			</form>
+		';
+    }
+
+    private function getOneTimeUsername(){
+        $username = $this->username;
+        $this->username = '';
+        return $username;
+    }
+
+
 
     public function contentToString(): string {
         $this->setMessage($this->credentials->getIssueCode());

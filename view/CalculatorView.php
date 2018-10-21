@@ -11,7 +11,7 @@ namespace view;
 
 use model\LoginConstants;
 
-class CalculatorView implements IContentView {
+class CalculatorView {
     private $totalInput;
     private $constants;
     private $previous;
