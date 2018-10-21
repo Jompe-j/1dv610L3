@@ -9,7 +9,7 @@ use model\RegisterCredentialsModel;
 class RegisterFormView implements IContentView
 
 {
-    private $message;
+    private $message = '';
     private $constants;
     private $username = '';
     private $validator;
@@ -69,7 +69,7 @@ class RegisterFormView implements IContentView
 
     public function contentToString(): string {
         $this->setMessage($this->credentials->getIssueCode());
-        return $this->generateRegisterUser($this->message, $this->credentials->getUsername());
+        return $this->generateRegisterUser($this->message);
     }
 
     public function setMessage(int $code): void {

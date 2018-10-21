@@ -11,7 +11,7 @@ class LoginFormView implements IContentView
 {
     private $constants;
     private $cookieSettings;
-    private $message;
+    private $message = '';
     private $credentials;
 
     public function __construct() {
@@ -115,7 +115,7 @@ class LoginFormView implements IContentView
      * @param $username
      * @return string
      */
-    private function generateLoginFormHTML($message, $username) : string {
+    private function generateLoginFormHTML($message, string $username) : string {
         return '
 			<form method="post"> 
 				<fieldset>
