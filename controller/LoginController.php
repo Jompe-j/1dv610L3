@@ -127,6 +127,4 @@ class LoginController
             $this->view->logOut();
         }
     }
-
-
 }

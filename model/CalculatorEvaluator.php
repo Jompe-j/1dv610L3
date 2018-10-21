@@ -14,14 +14,14 @@ class CalculatorEvaluator {
         $this->processPostFixedExpression();
     }
 
-    public function getCalculatedValue() {
+    public function getResult() {
+
         return array_shift($this->stack);
     }
 
     private function calculate(): void {
         $this->buildStringToSuffixFix();
         $this->infixToSuffix();
-
     }
 
     private function buildStringToSuffixFix(): void {
